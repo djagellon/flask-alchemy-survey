@@ -15,14 +15,11 @@
 1. activate virtual environment
 `$ . venv/bin/activate`
 
-to deactivate: 
-`(venv) $ deactivate`
+  to deactivate: 
+    `(venv) $ deactivate`
 
-1. pip installations required:
-* flask
-* sqlalchemy 
-* flask-sqlalchemy 
-* Flask-WTF
+1. install pip dependencies:
+`(venv) $ pip install -r requirements.txt`
 
 ### TODO ###
 - excel to JSON converter
