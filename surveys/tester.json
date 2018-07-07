@@ -1,0 +1,58 @@
+[
+  [
+    {
+      "domain": "ISGRMC",
+      "label": "q1",
+      "type": "radio",
+      "title": "Does the organization have budget and personnel dedicated to information security?",
+      "condition": "all", 
+      "answers": [
+        {"label": "y",
+          "text": "Yes"
+        }, 
+        {"label": "no",
+          "text": "No"
+        }
+      ]
+    },
+    {
+      "domain": "ISGRMC",
+      "label": "q2",
+      "type": "radio",
+      "title": "Where does the role of information security reside?",
+      "condition": "all", 
+      "answers": [
+        {"label": "it",
+          "text": "Within the Department of Information Technology"
+        }, 
+        {"label": "risk",
+          "text": "With Risk Management"
+        },
+        {"label": "finance",
+          "text": "Within Finance"
+        }, 
+        {"label": "other",
+          "text": "Other:",
+          "open": "True"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "domain": "ISGRMC",
+      "label": "q3",
+      "type": "radio",
+      "title": "Second Page?",
+      "condition": "all", 
+      "answers": [
+        {"label": "y",
+          "text": "Yes"
+        }, 
+        {"label": "no",
+          "text": "No"
+        }
+      ]
+    }
+  ]
+]
