@@ -1,0 +1,42 @@
+{% extends 'collect.html' %}
+
+{% block header %}
+  <h1>{% block title %}Questoinnaire{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+  {% if form %}
+
+    <form action="" method="post">
+      {{ form.hidden_tag() }}
+      <br/>
+
+        {% for f in form %}
+
+          {% if f.type != "CSRFTokenField" and f.type != "SubmitField" %}
+            <h3>{{ f.label }}</h3>
+            <p>{{ f() }}</p> 
+          {% endif %}
+
+        {% endfor %}
+
+      <br/><br/>
+      {% if form.submit %}
+        {{ form.submit() }}
+      {% endif %}
+
+    </form>
+
+  {% else %}
+
+    <h2> Welcome, please answer the following questions. Please Press Start</h2>
+
+    <input type="button" value="Start" onclick="window.location.href='{{ url_for('collect', page=1) }}'">
+
+  {% endif %}
+
+
+
+{% endblock %}
+
