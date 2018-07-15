@@ -1,0 +1,16 @@
+{% extends 'home.html' %}
+
+{% block header %}
+    <h1>{% block title %}Report{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    </br/><br/>
+
+        {% for d in data %}
+              <p>{{ d.to_dict() }}</p>
+        {% endfor %}
+
+    <input type="button" value="Test Again" onclick="window.location.href='{{ url_for('start', module='tester') }}'">
+{% endblock %}
+

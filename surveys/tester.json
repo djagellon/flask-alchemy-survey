@@ -1,0 +1,78 @@
+[
+  [
+    {
+      "label": "q1",
+      "type": "radio",
+      "title": "This is a Radio question.",
+      "condition": "all", 
+      "answers": [
+        {"label": "y",
+          "text": "Yes"
+        }, 
+        {"label": "no",
+          "text": "No"
+        }
+      ]
+    },
+    {
+      "label": "q2",
+      "type": "multi",
+      "title": "This is a boolean (Checkbox) question with an open end Other row.",
+      "condition": "all", 
+      "answers": [
+        {"label": "apples",
+          "text": "Apples"
+        }, 
+        {"label": "oranges",
+          "text": "Oranges"
+        },
+        {"label": "grapes",
+          "text": "Grapes"
+        }, 
+        {"label": "other",
+          "text": "Other:",
+          "open": "True"
+        }
+      ]
+    }
+  ],
+  [
+    {
+      "label": "q2a",
+      "type": "string",
+      "title": "This open text question should only show if you answered Yes to the previous question.",
+      "condition": "q2y", 
+      "answers": []
+    },
+    {
+      "label": "q2b",
+      "type": "integer",
+      "title": "This open integer question should only show if you answered Yes to the previous question.",
+      "condition": "q2y", 
+      "answers": []
+    }
+  ],
+  [
+    {
+      "label": "q3",
+      "type": "select",
+      "title": "Heres a dropdown select question.",
+      "condition": "all", 
+      "answers": [
+        {"label": "apples",
+          "text": "Apples"
+        }, 
+        {"label": "oranges",
+          "text": "Oranges"
+        },
+        {"label": "grapes",
+          "text": "Grapes"
+        }, 
+        {"label": "other",
+          "text": "Other:",
+          "open": "True"
+        }
+      ]
+    }
+  ]
+]

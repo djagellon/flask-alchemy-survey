@@ -1,15 +1,29 @@
 from app import db
+from datetime import datetime
 
 class SurveyModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    q1 = db.Column(db.String(20))
-    q2 = db.Column(db.String(20))
-    q2a = db.Column(db.String(255))
-    q2b = db.Column(db.String(255))
+    __tablename__ = 'survey'
 
-    # def __init__(self, q1=None, q2=None):
-    #     self.q1 = q1
-    #     self.q2 = q2
-        # self.q2a = q2a
-        # self.q2b = q2b
+    #TODO: link to account details
+    id = db.Column(db.Integer, primary_key = True)
+    module = db.Column(db.String(55))
+    questions = db.relationship('QuestionModel', backref='survey', lazy=False)
 
+    def to_dict(self):
+        return dict(id = self.id,
+                    module = self.module,
+                    questions = [question.to_dict() for question in self.questions])
+
+class QuestionModel(db.Model):
+    __tablename__ = 'questions'
+
+    id = db.Column(db.Integer, primary_key = True)
+    label = db.Column(db.String(55), nullable=False)
+    survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
+    answer = db.Column(db.ARRAY(db.String))
+
+    def to_dict(self):
+        return dict(id = self.id,
+                    label = self.label,
+                    answer = self.answer,
+                    survey_id = self.survey_id)

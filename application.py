@@ -3,7 +3,7 @@
 # from database_setup import Base, Restaurant, MenuItem
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from wtforms import StringField, BooleanField, RadioField, FieldList, FormField, SubmitField
+from wtforms import Form, widgets, StringField, BooleanField, FieldList, IntegerField, RadioField, SelectField, FormField, SubmitField, SelectMultipleField
 from wtforms.meta import DefaultMeta
 from wtforms.validators import Required
 from flask_wtf import FlaskForm
@@ -11,10 +11,13 @@ from config import Config
 from app import db
 import json
 
-from app.models import SurveyModel
+from app.models import SurveyModel, QuestionModel
+
+gv = {}
 
 app = Flask(__name__)
 app.config.from_object(Config)
+db.init_app(app)
 
 IGNORE_FIELDS = set('csrf_token submit'.split())
 
@@ -23,92 +26,139 @@ IGNORE_FIELDS = set('csrf_token submit'.split())
 def show_home():
     return render_template('home.html')
 
-@app.route('/collect/survey/', defaults={'page': None}, methods=['GET', 'POST'])
-@app.route('/collect/survey/<page>', methods=['GET', 'POST'])
-def collect(page):
+@app.route('/report')
+def show_report():
 
-    # checks pagerunner for page index
-    # determine logic for page
-        # skip page based on logic
-    print "PAGE: %s" % page
-    print "REQUEST: %s" % request
+    data = db.session.query(SurveyModel).all() 
 
-    page = int(page) if page else None
-    form = get_surveys_per_page(page)
+    return render_template('report.html', data=data)
 
-    if form and form.errors:
-        print "FORM ERRORS? %s" % form.errors
+class Survey(object):
 
-    if form and form.validate_on_submit():
-        # add data to db
+    def __init__(self, module):
+        self.questions = None
+        self.page_index = 0
+        self.module = module
+        self.questions = self.load_survey()
+        self.survey_length = len(self.questions)
+        self.db = SurveyModel(module=module)
 
-        # db.session.add(s)
-        # db.session.commit()
+    def load_survey(self):
+        try:
+            print "LOADING DATA FROM: %s" % self.module
+            with open('surveys/%s.json' % self.module) as f:
+                return json.load(f)
+        except IOError:
+            print "MODULE NOT FOUND: %s" % self.module
+            raise
 
-        # answers = [(k, v) for k, v in form.data.items() if k not in IGNORE_FIELDS]
-        pairs = ((k, v) for k, v in form.data.items() if k not in IGNORE_FIELDS)
 
-        for question, a in form.data.items():
-            if question not in IGNORE_FIELDS:
-                cls = getattr(SurveyModel, '{}'.format(question))
-                kw = {question: a}
-                import pdb;pdb.set_trace()
-                db.session.add(cls(**kw))
+@app.route('/collect/<module>/start')
+def start(module):
+    global gv
 
-        db.session.commit()
+    gv['survey'] = Survey(module)
 
-        # form = get_surveys_per_page(page + 1)
-        return redirect(url_for('collect', page=page+1))
+    return render_template('start.html')
+
+@app.route('/collect/', methods=['GET', 'POST'])
+def collect():
+    global gv
+
+    survey = gv['survey']
+
+    form = build_form(survey.questions[survey.page_index])
 
     # import pdb;pdb.set_trace()
-    print "NOW LOADING FORM: %s" % form
+    if form and form.validate_on_submit():
+        survey.page_index += 1
+
+        for question, answer in form.data.items():
+
+            if question not in IGNORE_FIELDS:
+                # whats the shortcut for this?
+                if not type(answer) is list:
+                    answer = [answer]
+                    
+                q = QuestionModel(label=question, answer=answer)
+                survey.db.questions.append(q)
+                db.session.add(survey.db)
+
+        if survey.page_index >= survey.survey_length:
+            # import pdb;pdb.set_trace()
+            db.session.commit()
+            # return render_template('endsurvey.html')
+            return redirect(url_for('show_report'))
+
+        form = build_form(survey.questions[survey.page_index])
+
+    return render_template('survey.html', form=form)
+
+class BindNameMeta(DefaultMeta):
+
+    def bind_field(self, form, unbound_field, options):
+        # allows us to overvide the name attribute of the field
+        if 'custom_name' in unbound_field.kwargs:
+            options['name'] = unbound_field.kwargs.pop('custom_name')
+
+        return unbound_field.bind(form=form, **options)
+
+class OpenForm(Form):
+    """
+    Adds an open text field to a specified choice within RadioFields 
+    """
+    # import pdb;pdb.set_trace()
+    # widget = widgets.ListWidget(prefix_label=False)
+    # option_widget = widgets.IntegerRangeField()
+    r = RadioField('some question ahppening', choices=[('one', 'one'), ('two', 'two'), ('other', 'other')], render_kw={'class':"hasopen"})
+    sometext = StringField(render_kw={'class':"hasopen"})
+
+class OptForm(Form):
+    first_name = StringField('DUMMY')
+    openform = FormField(OpenForm)
+
+@app.route('/widget/')
+def widget():
+    form = OpenForm() 
+    form.r.flags.open = True
+    # import pdb;pdb.set_trace()
     return render_template('question.html', form=form)
 
-def get_surveys_per_page(page):
+class MultiField(SelectMultipleField):
     """
-    Begin collecting data one page at a time
+    A multiple-select, except displays a list of checkboxes.
+
+    Iterating the field will produce subfields, allowing custom rendering of
+    the enclosed checkbox fields.
     """
-    # get next page
-    next_form = 'SurveyForm%s' % page
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
 
-    if page == 0:
-        return None
+def build_form(questions):
+    # This ist he suggested way to create dynamic forms according to docs:
+    # http://wtforms.simplecodes.com/docs/1.0.1/specific_problems.html#dynamic-form-composition
+    import importlib
 
-    try:
-        SurveyClass = globals()[next_form]
-        page = SurveyClass()
-    except KeyError:
-        page = FinalForm()
+    class DynamicForm(FlaskForm):
+        Meta = BindNameMeta
 
-    return page
+    for question in questions:
+        choices = []
+        question_type ='%sField' % question['type'].capitalize() 
+        FieldClass = globals()[question_type]
+        label = question['label']
 
-class SurveyForm(FlaskForm):
-    submit = SubmitField('Continue')
+        # import pdb;pdb.set_trace()
+        if question['answers']:
+            choices = [(a['label'], a['text']) for a in question['answers']]
+            question_field = FieldClass(question['title'], choices=choices, custom_name=label)
+        else:
+            question_field = FieldClass(question['title'], custom_name=label)
 
-class SurveyForm1(SurveyForm):
-    q1 = RadioField("Where does information Security reside within the organization?",
-        choices = [
-            ("IT", "Information Technology"),
-            ("RM", "Risk Managment"),
-            ("EM", "Executive Management"),
-            ("F", "Finanace"),
-            ("ISD", "Informatin Security Department or Division within Information Technology"),
-        ])
+        setattr(DynamicForm, label, question_field)
 
-    q2 = RadioField("Does the organization have budget and resources dedicated to information security?",
-        choices = [
-            ("Y", "Yes"),
-            ("N", "No"),
-        ])
-
-class SurveyForm2(SurveyForm):
-    q2a = StringField("What percentage of the IT budget is set for information security?")
-    q2b = StringField("What percentage of the organizational budget is set for information security?")
-
-
-class FinalForm(FlaskForm):
-    agreement = BooleanField("Thank you for completeing the survey. By clicking the checkbox you agree to our terms.")
-    submit = SubmitField('Finish')
+    form = DynamicForm()
+    return form
 
 if __name__ == '__main__':
     app.debug = True
