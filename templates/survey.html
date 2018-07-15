@@ -1,0 +1,51 @@
+{% extends 'collect.html' %}
+
+{% macro with_errors(field) %}
+    <div class="form_field">
+      {% if field.errors %}
+          {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
+          {{ field(class=css_class, **kwargs) }}
+
+          <div class="errors">
+            {% for error in field.errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+      {% else %}
+          <div class="answers">
+            {{ field(**kwargs) }}
+          <div>
+      {% endif %}
+    </div>
+{% endmacro %}
+
+{% block header %}
+  <h1>{% block title %}Questoinnaire{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <br/>
+
+        {% for q in form %}
+        <div class="question">
+
+            {% if q.type != "CSRFTokenField" and q.type != "SubmitField" %}
+              <h3 class="question-text">{{ q.label }}</h3>
+              {{ with_errors(q) }}
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
+      <br/><br/>
+      <input type="submit" value="Continue">
+      {% if form.submit %}
+        {{ form.submit() }}
+      {% endif %}
+    </form>
+
+{% endblock %}
+

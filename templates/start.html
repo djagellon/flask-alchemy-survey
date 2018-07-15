@@ -1,0 +1,17 @@
+{% extends 'collect.html' %}
+
+{% block header %}
+  <h1>{% block title %}Questoinnaire{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+    <h2> Welcome, please answer the following questions about...</h2>
+    <br/>
+    <br/>
+    <p>Click Start to begin</p>
+
+    <input type="button" value="Start" onclick="window.location.href='{{ url_for('collect') }}'">
+
+{% endblock %}
+

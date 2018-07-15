@@ -6,35 +6,23 @@
 
 {% block content %}
 
-  {% if form %}
-
     <form action="" method="post">
-      {{ form.hidden_tag() }}
-      <br/>
-
-        {% for f in form %}
-
-          {% if f.type != "CSRFTokenField" and f.type != "SubmitField" %}
-            <h3>{{ f.label }}</h3>
-            <p>{{ f() }}</p> 
-          {% endif %}
-
-        {% endfor %}
-
-      <br/><br/>
-      {% if form.submit %}
-        {{ form.submit() }}
-      {% endif %}
-
+      <div class="question">
+        <h1 class="question-text"> {{ form.r.label}} {{form.r.flags.open}} </h1>
+        <div class="answers">
+          {% for field in form.r %}
+          <div>
+            <span> {{ field }} {{field.label}} </span>
+            value: {{field.value}}
+            name: {{field.name}}
+            type: {{field.type}}
+            meta: {{field.meta}}
+          </div>
+          {% endfor %}
+        </div> 
+      </div>
+        {{ form.sometext() }}
     </form>
-
-  {% else %}
-
-    <h2> Welcome, please answer the following questions. Please Press Start</h2>
-
-    <input type="button" value="Start" onclick="window.location.href='{{ url_for('collect', page=1) }}'">
-
-  {% endif %}
-
+    
 {% endblock %}
 
