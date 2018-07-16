@@ -10,8 +10,10 @@ from flask_wtf import FlaskForm
 from config import Config
 from app import db
 import json
+import logging as log
 
 from app.models import SurveyModel, QuestionModel
+
 
 gv = {}
 
@@ -20,6 +22,8 @@ app.config.from_object(Config)
 db.init_app(app)
 
 IGNORE_FIELDS = set('csrf_token submit'.split())
+
+log.basicConfig(level=log.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def has_open(value):
     return value.render_kw and value.render_kw.get('class') == 'other_option'
@@ -50,11 +54,11 @@ class Survey(object):
 
     def load_survey(self):
         try:
-            print "LOADING DATA FROM: %s" % self.module
+            log.debug("LOADING DATA FROM: %s" % self.module)
             with open('surveys/%s.json' % self.module) as f:
                 return json.load(f)
         except IOError:
-            print "MODULE NOT FOUND: %s" % self.module
+            log.debug("MODULE NOT FOUND: %s" % self.module)
             raise
 
 
@@ -85,8 +89,8 @@ def collect():
                     answer = [answer]
                     
                 q = QuestionModel(label=question, answer=answer)
-                print "ADDING: %s" % q
 
+                log.debug('Adding data to db: %s' % q)
                 survey.db.questions.append(q)
                 db.session.add(survey.db)
 
@@ -95,6 +99,12 @@ def collect():
             # return render_template('endsurvey.html')
             return redirect(url_for('show_report'))
 
+        form = build_form(survey.questions[survey.page_index])
+
+    while not len(form._unbound_fields):
+        # no fields in page, go to next page
+        log.debug("***************** SKIPPPIING ***************** ")
+        survey.page_index += 1
         form = build_form(survey.questions[survey.page_index])
 
     return render_template('survey.html', form=form)
@@ -118,6 +128,18 @@ class MultiField(SelectMultipleField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
 
+def show_question(cond):
+    global gv
+    survey = gv['survey']
+
+    if cond == 'all':
+        return True
+
+    # TODO: check condition against given answers
+    # import pdb;pdb.set_trace()
+    return False
+        
+
 def build_form(questions):
     # This ist he suggested way to create dynamic forms according to docs:
     # http://wtforms.simplecodes.com/docs/1.0.1/specific_problems.html#dynamic-form-composition
@@ -132,6 +154,9 @@ def build_form(questions):
         question_type ='%sField' % question['type'].capitalize() 
         FieldClass = globals()[question_type]
         label = question['label']
+
+        if not show_question(question['condition']):
+            continue 
 
         if question['answers']:
             for choice in question['answers']:

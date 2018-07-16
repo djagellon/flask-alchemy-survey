@@ -54,6 +54,15 @@
   ],
   [
     {
+      "label": "q2c",
+      "type": "string",
+      "title": "This open text question should only show if you answered Yes to the previous question.",
+      "condition": "q2y", 
+      "answers": []
+    }
+  ],
+  [
+    {
       "label": "q3",
       "type": "select",
       "title": "Heres a dropdown select question.",
