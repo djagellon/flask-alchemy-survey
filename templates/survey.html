@@ -1,8 +1,10 @@
 {% extends 'collect.html' %}
 
 {% macro with_errors(field) %}
+
     <div class="form_field">
       {% if field.errors %}
+
           {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
           {{ field(class=css_class, **kwargs) }}
 
@@ -11,10 +13,13 @@
               <p>{{ error }}</p>
             {% endfor %}
           </div>
+
       {% else %}
-          <div class="answers">
-            {{ field(**kwargs) }}
-          <div>
+
+          <span class="answer"> 
+            {{ field(**kwargs) }} 
+          </span>
+
       {% endif %}
     </div>
 {% endmacro %}
@@ -30,21 +35,19 @@
         <br/>
 
         {% for q in form %}
-        <div class="question">
 
-            {% if q.type != "CSRFTokenField" and q.type != "SubmitField" %}
-              <h3 class="question-text">{{ q.label }}</h3>
-              {{ with_errors(q) }}
-            {% endif %}
+          {% if q | has_open %}
+            <span class="other_open option">{{ with_errors(q) }}</span>
+          {% elif q.type != "CSRFTokenField" and q.type != "SubmitField" %}
+            <div class="question">
+                <h3 class="question-text">{{ q.label }}</h3>
+                <span class="option">{{ with_errors(q) }}</span>
+            </div>
+          {% endif %}
 
-        </div>
         {% endfor %}
-
       <br/><br/>
       <input type="submit" value="Continue">
-      {% if form.submit %}
-        {{ form.submit() }}
-      {% endif %}
     </form>
 
 {% endblock %}

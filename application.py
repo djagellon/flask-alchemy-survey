@@ -21,6 +21,11 @@ db.init_app(app)
 
 IGNORE_FIELDS = set('csrf_token submit'.split())
 
+def has_open(value):
+    return value.render_kw and value.render_kw.get('class') == 'other_option'
+
+app.jinja_env.filters['has_open'] = has_open
+
 @app.route('/')
 @app.route('/home')
 def show_home():
@@ -69,23 +74,23 @@ def collect():
 
     form = build_form(survey.questions[survey.page_index])
 
-    # import pdb;pdb.set_trace()
     if form and form.validate_on_submit():
         survey.page_index += 1
 
         for question, answer in form.data.items():
 
-            if question not in IGNORE_FIELDS:
-                # whats the shortcut for this?
+            if answer and question not in IGNORE_FIELDS:
+                # TODO: whats the shortcut for this?
                 if not type(answer) is list:
                     answer = [answer]
                     
                 q = QuestionModel(label=question, answer=answer)
+                print "ADDING: %s" % q
+
                 survey.db.questions.append(q)
                 db.session.add(survey.db)
 
         if survey.page_index >= survey.survey_length:
-            # import pdb;pdb.set_trace()
             db.session.commit()
             # return render_template('endsurvey.html')
             return redirect(url_for('show_report'))
@@ -103,27 +108,6 @@ class BindNameMeta(DefaultMeta):
 
         return unbound_field.bind(form=form, **options)
 
-class OpenForm(Form):
-    """
-    Adds an open text field to a specified choice within RadioFields 
-    """
-    # import pdb;pdb.set_trace()
-    # widget = widgets.ListWidget(prefix_label=False)
-    # option_widget = widgets.IntegerRangeField()
-    r = RadioField('some question ahppening', choices=[('one', 'one'), ('two', 'two'), ('other', 'other')], render_kw={'class':"hasopen"})
-    sometext = StringField(render_kw={'class':"hasopen"})
-
-class OptForm(Form):
-    first_name = StringField('DUMMY')
-    openform = FormField(OpenForm)
-
-@app.route('/widget/')
-def widget():
-    form = OpenForm() 
-    form.r.flags.open = True
-    # import pdb;pdb.set_trace()
-    return render_template('question.html', form=form)
-
 class MultiField(SelectMultipleField):
     """
     A multiple-select, except displays a list of checkboxes.
@@ -137,28 +121,38 @@ class MultiField(SelectMultipleField):
 def build_form(questions):
     # This ist he suggested way to create dynamic forms according to docs:
     # http://wtforms.simplecodes.com/docs/1.0.1/specific_problems.html#dynamic-form-composition
-    import importlib
 
     class DynamicForm(FlaskForm):
         Meta = BindNameMeta
 
     for question in questions:
         choices = []
+        other_field = None
+        other_label = None
         question_type ='%sField' % question['type'].capitalize() 
         FieldClass = globals()[question_type]
         label = question['label']
 
-        # import pdb;pdb.set_trace()
         if question['answers']:
-            choices = [(a['label'], a['text']) for a in question['answers']]
+            for choice in question['answers']:
+                choices.append((choice['label'], choice['text']))
+
+                if choice.has_key('open'):
+                    other_label = question['label'] + '_other'
+
             question_field = FieldClass(question['title'], choices=choices, custom_name=label)
+
         else:
             question_field = FieldClass(question['title'], custom_name=label)
 
+        question_field.flags = {'other': False}
+
         setattr(DynamicForm, label, question_field)
 
-    form = DynamicForm()
-    return form
+        if other_label:
+            setattr(DynamicForm, other_label, StringField(id=other_label, render_kw={'class': 'other_option'}))
+
+    return DynamicForm()
 
 if __name__ == '__main__':
   app.debug = True
