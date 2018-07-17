@@ -131,14 +131,18 @@ class MultiField(SelectMultipleField):
 def show_question(cond):
     global gv
     survey = gv['survey']
+    show = False
 
     if cond == 'all':
         return True
 
-    # TODO: check condition against given answers
-    # import pdb;pdb.set_trace()
-    return False
-        
+    cond_question, cond_answer = cond.split('.')
+    questions = survey.db.to_dict().get('questions', [])
+    question = filter(lambda qn: qn['label'] == cond_question, questions)
+    show = question[0] and cond_answer in question[0]['answer']
+
+    log.debug("CONDITION: %s" % show)
+    return show
 
 def build_form(questions):
     # This ist he suggested way to create dynamic forms according to docs:
