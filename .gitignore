@@ -1,2 +1,5 @@
 veraenv/
 *.pyc
+
+# for now
+config.py
