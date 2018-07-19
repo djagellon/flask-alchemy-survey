@@ -1,4 +1,5 @@
 veraenv/
+venv/
 *.pyc
 
 # for now
