@@ -105,7 +105,11 @@ def collect():
         # no fields in page, go to next page
         log.debug("***************** SKIPPPIING ***************** ")
         survey.page_index += 1
-        form = build_form(survey.questions[survey.page_index])
+        try:
+            form = build_form(survey.questions[survey.page_index])
+        except IndexError:
+            # return render_template('endsurvey.html')
+            return redirect(url_for('show_report'))
 
     return render_template('survey.html', form=form)
 
@@ -117,6 +121,9 @@ class BindNameMeta(DefaultMeta):
             options['name'] = unbound_field.kwargs.pop('custom_name')
 
         return unbound_field.bind(form=form, **options)
+
+class TextField(StringField):
+    pass
 
 class MultiField(SelectMultipleField):
     """
@@ -133,13 +140,21 @@ def show_question(cond):
     survey = gv['survey']
     show = False
 
-    if cond == 'all':
+    if not cond or cond == 'all':
         return True
 
     cond_question, cond_answer = cond.split('.')
     questions = survey.db.to_dict().get('questions', [])
     question = filter(lambda qn: qn['label'] == cond_question, questions)
-    show = question[0] and cond_answer in question[0]['answer']
+
+    try:
+        show = question[0] and cond in question[0]['answer']
+        # import pdb;pdb.set_trace()
+    except IndexError:
+        # question was not found for some reason
+        # import pdb;pdb.set_trace()
+        log.warn("Question not found when checking condition.")
+        return True
 
     log.debug("CONDITION: %s" % show)
     return show
@@ -162,7 +177,7 @@ def build_form(questions):
         if not show_question(question['condition']):
             continue 
 
-        if question['answers']:
+        if len(question['answers']) > 1:
             for choice in question['answers']:
                 choices.append((choice['label'], choice['text']))
 

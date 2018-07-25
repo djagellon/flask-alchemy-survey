@@ -1,4 +1,6 @@
 veraenv/
+venv/
+surveys/
 *.pyc
 
 # for now
