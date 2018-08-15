@@ -11,6 +11,9 @@
               <p>{{ d.to_dict() }}</p>
         {% endfor %}
 
-    <input type="button" value="Test Again" onclick="window.location.href='{{ url_for('start', module='tester') }}'">
+    <input type="button" value="Test Again" onclick="window.location.href='{{ url_for('survey.start', module='tester') }}'">
+    <br/><br/> 
+
+    <input type="button" value="Clear DB" onclick="window.location.href='{{ url_for('report.delete_all') }}'">
 {% endblock %}
 

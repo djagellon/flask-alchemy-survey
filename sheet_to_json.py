@@ -67,7 +67,6 @@ def main():
             })
             continue
 
-
         question = dict(zip(SHEET_HEADERS, row))
 
         question["answers"] = [{
