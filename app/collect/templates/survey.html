@@ -30,6 +30,7 @@
 
 {% block content %}
 
+  {% if form %}
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <br/>
@@ -49,6 +50,11 @@
       <br/><br/>
       <input type="submit" value="Continue">
     </form>
+  {% else %}
+    <form action="" method="post">
+      <input type="submit" value="Continue">
+    </form>
+  {% endif %}
 
 {% endblock %}
 
