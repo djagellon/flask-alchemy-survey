@@ -1,4 +1,5 @@
 from app import db
+from app.collect import bp
 from flask import Blueprint, render_template, redirect, url_for
 from wtforms import Form, widgets, StringField, BooleanField, FieldList, IntegerField, RadioField, SelectField, FormField, SubmitField, SelectMultipleField
 from wtforms.meta import DefaultMeta
@@ -11,8 +12,6 @@ import json
 from app.models import SurveyModel, QuestionModel
 
 gv = {}
-
-bp = Blueprint('survey', __name__, template_folder='templates')
 
 IGNORE_FIELDS = set('csrf_token submit'.split())
 

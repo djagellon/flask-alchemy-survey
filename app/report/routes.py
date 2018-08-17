@@ -1,9 +1,8 @@
 from flask import Blueprint, render_template
 from app import db
+from app.report import bp
 
 from app.models import SurveyModel
-
-bp = Blueprint('report', __name__, template_folder='templates')
 
 @bp.route('/report/')
 def show_report():
