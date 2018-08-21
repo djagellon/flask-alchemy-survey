@@ -1,6 +1,7 @@
 from app import create_app, db
 from app.models import User, SurveyModel, QuestionModel
 
+
 app = create_app()
 
 def has_open(value):
@@ -14,9 +15,3 @@ def make_shell_context():
             'User': User, 
             'SurveyModel': SurveyModel, 
             'QuestionModel': QuestionModel}
-
-####MOVE ALL THIS BELOW
-@app.route('/')
-@app.route('/home')
-def show_home():
-    return render_template('home.html')

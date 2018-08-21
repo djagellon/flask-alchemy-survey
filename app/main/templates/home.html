@@ -11,9 +11,15 @@
         <a class="navbar-brand" href="">VERA Strategic</a>
       </div>
       <div>
+        Hi, {{ current_user.username }}!
         <ul class="nav navbar-nav">
           <li><a href="">Home</a></li>
           <li><a href="">Dashboard</a></li>
+          {% if current_user.is_anonymous %}
+            <a href="{{ url_for('auth.login') }}">Login</a>
+          {% else %}
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+          {% endif %}
         </ul> 
       </div>
     </div>

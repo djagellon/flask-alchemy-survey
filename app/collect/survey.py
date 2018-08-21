@@ -1,6 +1,7 @@
 from app import db
 from app.collect import bp
 from flask import Blueprint, render_template, redirect, url_for
+from flask_login import login_required
 from wtforms import Form, widgets, StringField, BooleanField, FieldList, IntegerField, RadioField, SelectField, FormField, SubmitField, SelectMultipleField
 from wtforms.meta import DefaultMeta
 from wtforms.validators import Required
@@ -136,6 +137,7 @@ class Survey(object):
         return DynamicForm()
 
 @bp.route('/collect/<module>/start')
+@login_required
 def start(module):
     # TODO: Once user registration is implemented...
     # - Check for existing Survey in the db
