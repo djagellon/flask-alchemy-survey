@@ -2,6 +2,9 @@ veraenv/
 venv/
 surveys/
 *.pyc
+.flaskenv
+client_secret.json
+credentials.json
 
 # for now
 config.py
