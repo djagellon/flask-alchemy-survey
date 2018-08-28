@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required
 from app import db
 from app.report import bp
@@ -11,7 +11,7 @@ def show_report():
 
     data = db.session.query(SurveyModel).all() 
 
-    return render_template('reports.html', data=data)
+    return render_template('reports.html', title="Report", data=data)
 
 @bp.route('/delete')
 @login_required

@@ -1,42 +1,60 @@
-<html>
-  <head>
-    <link rel=stylesheet type=text/css href="{{url_for('static', filename='styles.css')}}">
-  </head>
+{% extends 'bootstrap/base.html' %}
 
-  <body>
+{% block title %}
+    {% if title %}
+      {{ title }} - VERA Strategic
+    {% else %}
+      Welcome to VERA Strategic
+    {% endif %}
+{% endblock %}
 
-    {% block navbar %}
-    <div class="header navbar" navbar-default>
+{% block navbar %}
+  <nav class="navbar navbar-default">
+    <div class="container">
+
       <div class="navbar-header">
-        <a class="navbar-brand" href="">VERA Strategic</a>
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{ url_for('main.index') }}">VERA Strategic</a>
       </div>
-      <div>
-        Hi, {{ current_user.username }}!
+
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
         <ul class="nav navbar-nav">
-          <li><a href="">Home</a></li>
+          <li><a href="{{ url_for('main.index')}}">Home</a></li>
           <li><a href="">Dashboard</a></li>
-          {% if current_user.is_anonymous %}
-            <a href="{{ url_for('auth.login') }}">Login</a>
-          {% else %}
-            <a href="{{ url_for('auth.logout') }}">Logout</a>
-          {% endif %}
         </ul> 
+
+        <ul class="nav navbar-nav navbar-right">
+          {% if current_user.is_anonymous %}
+            <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+          {% else %}
+            <li><a href="">Profile</a></li>
+            <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+          {% endif %}
+        </ul>
+
       </div>
+
     </div>
-    {% endblock %}
+  </nav>
+{% endblock %}
 
-    <div class="pane">
-      <section class="content">
-        <header>
-          {% block header %}{% endblock %}
-        </header>
-
-        {% for message in get_flashed_messages() %}
-          <div class="flash">{{ message }}</div>
+{% block content %}
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
         {% endfor %}
+    {% endif %}
+    {% endwith %}
 
-        {% block content %}{% endblock %}        
-      </section>
-    </div>
-  </body>
-</html>
+    {# application content needs to be provided in the app_content block #}
+    {% block app_content %}{% endblock %}
+  </div>
+{% endblock %}        

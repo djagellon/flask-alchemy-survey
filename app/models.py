@@ -11,7 +11,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     admin = db.Column(db.Boolean)
-    surveys = db.relationship('SurveyModel', backref='user', lazy=False)
+    surveys = db.relationship('SurveyModel', backref='user', lazy='dynamic')
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -29,7 +29,7 @@ class SurveyModel(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     module = db.Column(db.String(55))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    questions = db.relationship('QuestionModel', backref='survey', lazy=False)
+    questions = db.relationship('QuestionModel', backref='survey', lazy='dynamic')
 
     def to_dict(self):
         return dict(id = self.id,

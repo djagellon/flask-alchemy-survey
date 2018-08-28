@@ -1,7 +1,7 @@
 from app import db
 from app.collect import bp
 from flask import Blueprint, render_template, redirect, url_for
-from flask_login import login_required
+from flask_login import login_required, current_user
 from wtforms import Form, widgets, StringField, BooleanField, FieldList, IntegerField, RadioField, SelectField, FormField, SubmitField, SelectMultipleField
 from wtforms.meta import DefaultMeta
 from wtforms.validators import Required
@@ -10,7 +10,7 @@ from flask_wtf import FlaskForm
 import logging as log
 import json
 
-from app.models import SurveyModel, QuestionModel
+from app.models import User, SurveyModel, QuestionModel
 
 gv = {}
 
@@ -48,7 +48,30 @@ class Survey(object):
         self.module = module
         self.questions = self.load_survey()
         self.survey_length = len(self.questions)
-        self.db = SurveyModel(module=module)
+        self.survey_db = self.get_surveyModel(module)
+        # import pdb;pdb.set_trace()
+
+    def get_surveyModel(self, module):
+        # search users db for the survey
+        # create one if does not exist
+
+        user = User.query.filter_by(id=current_user.id).first()
+        survey = user.surveys.filter_by(module=module).first()
+
+        # import pdb;pdb.set_trace()
+        if not survey:
+            survey = SurveyModel(module=module, user=user)
+            db.session.add(survey)
+            db.session.commit()
+
+        # TODO: throw error or display user message. 
+        #   For now this will add multiple survey answers
+        #else:
+        #     throwError
+
+        return survey
+
+    # def get_user_survey_for_module(module):
 
     def load_survey(self):
         try:
@@ -66,7 +89,7 @@ class Survey(object):
             return True
 
         cond_question, cond_answer = cond.split('.')
-        questions = self.db.to_dict().get('questions', [])
+        questions = self.survey_db.to_dict().get('questions', [])
         question = filter(lambda qn: qn['label'] == cond_question, questions)
 
         try:
@@ -83,8 +106,8 @@ class Survey(object):
         return self.questions[self.page_index]
 
     def add_answers(self, data):
-        self.db.questions.append(data)        
-        db.session.add(self.db)
+        self.survey_db.questions.append(data)        
+        db.session.add(self.survey_db)
 
     def finish(self):
         db.session.commit()
