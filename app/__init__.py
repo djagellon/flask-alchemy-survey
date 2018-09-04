@@ -21,6 +21,9 @@ def create_app():
     login.init_app(app)
     login.login_view = 'auth.login'
 
+    from app.api import bp as bp_api
+    app.register_blueprint(bp_api, url_prefix='/api')
+
     from app.main import bp as bp_main
     app.register_blueprint(bp_main)
 
