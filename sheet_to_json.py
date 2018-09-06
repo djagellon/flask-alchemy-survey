@@ -56,7 +56,7 @@ def main():
 
     survey = []
     page = []
-    output = []
+    output = {}
 
     for idx, row in enumerate(values):
 
@@ -65,6 +65,16 @@ def main():
             survey.append(page)
             page = []
             continue
+        else:
+            # Reporting Output. This saves to [module]_output.json
+            # only the relevant rows: exclude 0-4
+            row_data = dict(zip(OUTPUT_HEADERS, row[5:])) 
+            # question_label = row_data['datalabel'].split('.')[0]
+
+            try:
+                output[row_data['datalabel']] = row_data
+            except KeyError:
+                pass
 
         ## no question label means answer values belong to previous row
         if not row[1]:
@@ -74,7 +84,7 @@ def main():
             })
             continue
 
-        question = dict(zip(SHEET_HEADERS, row))
+        question = dict(zip(SHEET_HEADERS, row[:6]))
 
         question["answers"] = [{
             "text": row[4],
@@ -85,9 +95,12 @@ def main():
 
         page.append(question)
 
-    # write to file
-    file = open("surveys/%s.json" % module, "w")
-    file.write(json.dumps(survey, indent=2, sort_keys=True))
+    # write to files
+    output_file = open("surveys/%s_output.json" % module, "w")
+    output_file.write(json.dumps(output, indent=2, sort_keys=True))
+
+    survey_file = open("surveys/%s.json" % module, "w")
+    survey_file.write(json.dumps(survey, indent=2, sort_keys=True))
 
 if __name__ == "__main__":
     main()
