@@ -29,7 +29,6 @@ def get_answer_for_module(module):
         data['text'] = outdata['question']
         data['output'] = outdata
 
-        # data = [q.to_dict() for q in survey.questions.all()]
         answers.append(data)
 
     return jsonify(answers)

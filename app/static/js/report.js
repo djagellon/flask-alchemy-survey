@@ -14,17 +14,9 @@ $(function() {
             { data: 'output.question' },
             { data: 'answer' },
             { data: 'output.short'},
-            { data: 'output.action'},
-            { data: 'id', visible: false}
+            { data: 'output.action'}
         ],
         paging: false,
         order: [[0, "asc"]],
-        // ordering: false,
-        
     } );
-
-    // fetch('http://localhost:5000/api/report/all').then( x => {
-    //     console.log("X: ", x.text());
-    //     return x;
-    // });
 });
