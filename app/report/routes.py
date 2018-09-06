@@ -5,13 +5,18 @@ from app.report import bp
 
 from app.models import SurveyModel
 
-@bp.route('/report/')
+@bp.route('/report/all')
 @login_required
-def show_report():
+def show_all_reports():
+    data = db.session.query(SurveyModel).all() or []
+    # import pdb;pdb.set_trace()
+    return render_template('reports_all.html', title="report", data=data)
 
-    data = db.session.query(SurveyModel).all() 
-
-    return render_template('reports.html', title="Report", data=data)
+@bp.route('/report/<module>')
+@login_required
+def show_report(module):
+    # data = db.session.query(SurveyModel).all() 
+    return render_template('reports.html', title="report", module=module)
 
 @bp.route('/delete')
 @login_required
@@ -22,4 +27,4 @@ def delete_all():
         db.session.delete(s)
 
     db.session.commit()
-    return redirect(url_for('report.show_report'))
+    return redirect(url_for('report.show_all_reports'))

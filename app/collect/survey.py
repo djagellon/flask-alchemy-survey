@@ -49,7 +49,9 @@ class Survey(object):
         self.questions = self.load_survey()
         self.survey_length = len(self.questions)
         self.survey_db = self.get_surveyModel(module)
-        # import pdb;pdb.set_trace()
+
+        # track answers locally until we figure out db sessions :(
+        self.current_survey = {}
 
     def get_surveyModel(self, module):
         # search users db for the survey
@@ -84,16 +86,21 @@ class Survey(object):
 
     def show_question(self, cond):
         show = False
+        # cond = cond.lower()
 
         if not cond or cond == 'all':
             return True
 
         cond_question, cond_answer = cond.split('.')
-        questions = self.survey_db.to_dict().get('questions', [])
-        question = filter(lambda qn: qn['label'] == cond_question, questions)
+        # questions = [q.to_dict() for q in self.current_survey]
+        answers = self.current_survey.get(cond_question, []) 
 
+        # add this back when we figure out sessions
+        # question = self.survey_db.questions.filter_by(label=cond_question).first()
+
+        # import pdb;pdb.set_trace()
         try:
-            show = question[0] and cond in question[0]['answer']
+            show = cond in answers
         except IndexError:
             # question was not found for some reason
             log.warn("Question not found when checking condition: [%s]." % cond)
@@ -106,11 +113,18 @@ class Survey(object):
         return self.questions[self.page_index]
 
     def add_answers(self, data):
-        self.survey_db.questions.append(data)        
-        db.session.add(self.survey_db)
+        # print "ADDING ANS: %s" % data
+        # import pdb;pdb.set_trace()
+
+        self.current_survey[data.label] = data.answer        
+        db.session.add(data)
+        db.session.commit()
 
     def finish(self):
-        db.session.commit()
+        # import pdb;pdb.set_trace()
+        # db.session.commit()
+        # db.session.close()
+        pass
 
     def increment_page(self, page=None):
         if page:
@@ -189,13 +203,14 @@ def collect(module=None):
                 if not type(answer) is list:
                     answer = [answer]
                     
-                question_data = QuestionModel(label=question, answer=answer)
+                question_data = QuestionModel(label=question, answer=answer, survey=survey.survey_db)
                 survey.add_answers(question_data)
 
         if survey.page_index >= survey.survey_length:
+            print "FINISHING SURVEY>.."
             survey.finish()
             # return render_template('endsurvey.html')
-            return redirect(url_for('report.show_report'))
+            return redirect(url_for('report.show_all_reports'))
 
         form = survey.get_page()
 
@@ -207,6 +222,6 @@ def collect(module=None):
             form = survey.get_page()
         except IndexError:
             # return render_template('endsurvey.html')
-            return redirect(url_for('report.show_report'))
+            return redirect(url_for('report.show_all_reports'))
 
     return render_template('survey.html', form=form)

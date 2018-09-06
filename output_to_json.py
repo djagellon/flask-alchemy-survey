@@ -14,10 +14,10 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 SPREADSHEET_ID = '1H7SdrzSY2PbW6n4bIs2ZjctXwZnN2kvU7hD7x64d1Pw'
 
 TEST_MODULE = 'test'
-DEFAULT_RANGE = 'C2:H'
+DEFAULT_RANGE = 'F2:O'
 TEST_RANGE = '%s!%s' % (TEST_MODULE, DEFAULT_RANGE)
 
-SHEET_HEADERS = ["type", "label", "condition", "title", "answers", "datalabel"]
+OUTPUT_HEADERS = ["question", "ans", "datalabel", "notes", "rating", "short", "long", "action", "metrics", "weight"]
 
 def get_sheet_from_google(sheet=TEST_RANGE):
     store = file.Storage('credentials.json')
@@ -48,40 +48,29 @@ def main():
 
     values = google_data.get('values', [])
 
-    survey = []
-    page = []
-    output = []
+    questions = {}
+    output = {}
 
     for idx, row in enumerate(values):
 
-        ## page means new list
-        if len(row) == 1 and row[0] == 'page':
-            survey.append(page)
-            page = []
-            continue
 
-        ## no question label means answer values belong to previous row
-        if not row[1]:
-            question["answers"].append({
-                "text": row[4],
-                "label": row[5] 
-            })
-            continue
+        if row:
+            row_data = dict(zip(OUTPUT_HEADERS, row))
 
-        question = dict(zip(SHEET_HEADERS, row))
+            q_label = row_data['datalabel'].split('.')[0]
 
-        question["answers"] = [{
-            "text": row[4],
-            "label": row[5] 
-        }]
+            if row_data['question']:
+                questions[q_label] = row_data['question']
 
-        del question['datalabel']
+            if not row_data['question']:
+                row_data['question'] = questions[q_label]
 
-        page.append(question)
+            output[row_data['datalabel']] = row_data
 
-    # write to file
-    file = open("surveys/%s.json" % module, "w")
-    file.write(json.dumps(survey))
+    # import pdb;pdb.set_trace()
+    # write to output to file
+    file = open("surveys/%s_output.json" % module, "w")
+    file.write(json.dumps(output, indent=2, sort_keys=True))
 
 if __name__ == "__main__":
     main()

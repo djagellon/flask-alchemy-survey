@@ -1,0 +1,20 @@
+{% extends 'home.html' %}
+
+{% block header %}
+    <h1>{% block title %}Report{% endblock %}</h1>
+{% endblock %}
+
+{% block app_content %}
+<h2> All Surveys</h2>
+    </br/><br/>
+
+        DATA: {{data}}
+        {% for d in data %}
+              <p>{{ d.to_dict() }}</p>
+        {% endfor %}
+
+    <input type="button" value="Test Again" onclick="window.location.href='{{ url_for('survey.start', module='tester') }}'">
+    <br/><br/> 
+
+    <input type="button" value="Clear DB" onclick="window.location.href='{{ url_for('report.delete_all') }}'">
+{% endblock %}
