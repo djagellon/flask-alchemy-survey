@@ -11,13 +11,18 @@ pp = pprint.PrettyPrinter(indent=2)
 
 # Setup the Sheets API
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
-SPREADSHEET_ID = '1H7SdrzSY2PbW6n4bIs2ZjctXwZnN2kvU7hD7x64d1Pw'
+# DEV_SPREADSHEET_ID = '1H7SdrzSY2PbW6n4bIs2ZjctXwZnN2kvU7hD7x64d1Pw'
+SPREADSHEET_ID = '14qDT52ycqNx-XHp0x_IzSMwTRg81v2ED0Ae0wgwBlYI'
 
 TEST_MODULE = 'test'
-DEFAULT_RANGE = 'C2:H'
+DEFAULT_RANGE = 'A2:O'
 TEST_RANGE = '%s!%s' % (TEST_MODULE, DEFAULT_RANGE)
 
+# Columns A-F
 SHEET_HEADERS = ["type", "label", "condition", "title", "answers", "datalabel"]
+
+# ColumnsF-O
+OUTPUT_HEADERS = ["datalabel", "notes", "rating", "short", "long", "action", "metrics", "weight"]
 
 def get_sheet_from_google(sheet=TEST_RANGE):
     store = file.Storage('credentials.json')
@@ -28,6 +33,7 @@ def get_sheet_from_google(sheet=TEST_RANGE):
         creds = tools.run_flow(flow, store)
 
     service = build('sheets', 'v4', http=creds.authorize(Http()))
+
 
     # Call the Sheets API
     result = service.spreadsheets().values().get(
@@ -55,7 +61,7 @@ def main():
     for idx, row in enumerate(values):
 
         ## page means new list
-        if len(row) == 1 and row[0] == 'page':
+        if row[0] == 'page':
             survey.append(page)
             page = []
             continue
@@ -81,7 +87,7 @@ def main():
 
     # write to file
     file = open("surveys/%s.json" % module, "w")
-    file.write(json.dumps(survey))
+    file.write(json.dumps(survey, indent=2, sort_keys=True))
 
 if __name__ == "__main__":
     main()
