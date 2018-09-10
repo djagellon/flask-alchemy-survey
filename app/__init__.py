@@ -6,6 +6,7 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_user import UserManager
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -20,6 +21,9 @@ def create_app():
     migrate.init_app(app, db)
     login.init_app(app)
     login.login_view = 'auth.login'
+
+    from app.models import User
+    user_manager = UserManager(app, db, User)
 
     from app.api import bp as bp_api
     app.register_blueprint(bp_api, url_prefix='/api')

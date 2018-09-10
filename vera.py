@@ -1,5 +1,5 @@
 from app import create_app, db
-from app.models import User, SurveyModel, QuestionModel
+from app.models import User, Role, UserRoles, SurveyModel, QuestionModel
 
 
 app = create_app()
@@ -13,5 +13,7 @@ app.jinja_env.filters['has_open'] = has_open
 def make_shell_context():
     return {'db': db,
             'User': User, 
+            'Role': Role,
+            'UserRoles': UserRoles,
             'SurveyModel': SurveyModel, 
             'QuestionModel': QuestionModel}

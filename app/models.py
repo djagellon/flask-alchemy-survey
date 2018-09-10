@@ -10,7 +10,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    admin = db.Column(db.Boolean)
+    roles = db.relationship('Role', secondary='user_roles')
     surveys = db.relationship('SurveyModel', backref='user', lazy='dynamic')
 
     def __repr__(self):
@@ -21,6 +21,22 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+
+class UserRoles(db.Model):
+    __tablename__ = 'user_roles'
+
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+
 
 class SurveyModel(db.Model):
     __tablename__ = 'survey'
@@ -50,6 +66,7 @@ class QuestionModel(db.Model):
                     label = self.label,
                     answer = self.answer,
                     survey_id = self.survey_id)
+
 
 @login.user_loader
 def load_user(id):
