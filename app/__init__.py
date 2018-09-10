@@ -36,8 +36,6 @@ def create_app():
     from app.collect import bp as bp_survey
     app.register_blueprint(bp_survey)
 
-    db.init_app(app)
-
     return app
 
 from app import models
