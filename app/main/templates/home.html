@@ -8,6 +8,7 @@
     {% endif %}
 {% endblock %}
 
+{% block body %}
 {% block navbar %}
   <nav class="navbar navbar-default">
     <div class="container">
@@ -31,10 +32,10 @@
 
         <ul class="nav navbar-nav navbar-right">
           {% if current_user.is_anonymous %}
-            <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+              <li><a href="{{ url_for('user.login')}}">Login</a></li>          
           {% else %}
             <li><a href="">Profile</a></li>
-            <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+            <li><a href="{{ url_for('user.logout') }}">Logout</a></li>
           {% endif %}
         </ul>
 
@@ -44,17 +45,26 @@
   </nav>
 {% endblock %}
 
-{% block content %}
-  <div class="container">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-info" role="alert">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
+    <div id="main-div" class="container with-margins">
+    {# One-time system messages called Flash messages #}
+    {% block flash_messages %}
+        {%- with messages = get_flashed_messages(with_categories=true) -%}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category=='error' %}
+                        {% set category='danger' %}
+                    {% endif %}
+                    <div class="alert alert-{{category}}">{{ message|safe }}</div>
+                {% endfor %}
+            {% endif %}
+        {%- endwith %}
+    {% endblock %}
 
-    {# application content needs to be provided in the app_content block #}
-    {% block app_content %}{% endblock %}
-  </div>
-{% endblock %}        
+    {% block main %}
+        {% block content %}{% endblock %}
+    {% endblock %}
+    </div>
+{% endblock %}
+
+{# *** Allow sub-templates to insert extra html to the bottom of the body *** #}
+{% block extra_js %}{% endblock %}

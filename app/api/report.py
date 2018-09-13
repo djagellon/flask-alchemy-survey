@@ -1,7 +1,7 @@
 from flask import jsonify
 from app.models import SurveyModel
 from app.api import bp, users
-from flask_login import current_user
+from flask_user import current_user
 import json
 
 @bp.route('/report/<module>', methods=['GET'])

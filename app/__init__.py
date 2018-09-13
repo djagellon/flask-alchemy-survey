@@ -5,11 +5,10 @@ from flask_bootstrap import Bootstrap
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_user import UserManager
 
 db = SQLAlchemy()
 migrate = Migrate()
-login = LoginManager()
 
 def create_app():
     app = Flask(__name__)
@@ -18,8 +17,9 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
-    login.init_app(app)
-    login.login_view = 'auth.login'
+
+    from app.models import User
+    user_manager = UserManager(app, db, User)
 
     from app.api import bp as bp_api
     app.register_blueprint(bp_api, url_prefix='/api')
@@ -27,14 +27,15 @@ def create_app():
     from app.main import bp as bp_main
     app.register_blueprint(bp_main)
 
-    from app.auth import bp as bp_auth
-    app.register_blueprint(bp_auth)
-
     from app.report import bp as bp_report
     app.register_blueprint(bp_report)
 
     from app.collect import bp as bp_survey
     app.register_blueprint(bp_survey)
+    
+    @app.context_processor
+    def context_processor():
+        return dict(user_manager=user_manager)
 
     return app
 

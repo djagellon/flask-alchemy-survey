@@ -1,7 +1,7 @@
 from app import db
 from app.collect import bp
 from flask import Blueprint, render_template, redirect, url_for
-from flask_login import login_required, current_user
+from flask_user import login_required, current_user
 from wtforms import Form, widgets, StringField, BooleanField, FieldList, IntegerField, RadioField, SelectField, FormField, SubmitField, SelectMultipleField
 from wtforms.meta import DefaultMeta
 from wtforms.validators import Required
