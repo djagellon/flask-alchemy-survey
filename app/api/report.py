@@ -26,9 +26,31 @@ def get_answer_for_module(module):
             #TODO Handle open end data
             outdata = outputs[data['label']]
 
-        data['text'] = outdata['question']
-        data['output'] = outdata
+        answers.append(outdata)
 
-        answers.append(data)
-
+    #sort data by weight
+    answers.sort(key=lambda x: int(x['weight'] or 0), reverse=True)
     return jsonify(answers)
+
+
+def get_answer_label(label):
+    # labels can come in with qlabel.answer.action
+    # we only care about the qlabel.answer
+    return '.'.join(label.split('.')[:2])
+
+@bp.route('/report/<type>/<module>/<label>', methods=['GET'])
+def get_output(type, module, label):
+
+    label = get_answer_label(label)
+
+    with open('surveys/%s_output.json' % module) as f:
+        outputs = json.load(f)
+
+    try:
+        output = outputs[label][type]
+    except KeyError:
+        print "NO OUTPUT FOUND FOR %s" % label
+        output = 'No further information available'
+
+    return jsonify(output)
+

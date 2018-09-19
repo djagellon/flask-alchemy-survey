@@ -1,22 +1,23 @@
 $(function() {
-    console.log("report.js has loaded : ")
 
-    var path = this.location.pathname.split('/')
-    var module = path[path.length -1]
+    async function getShortOutput(modal, label) {
+        let output_url = `/api/report/short/${modal}/${label}`;
+        let response = await fetch(output_url);
+        let data = await response.json();
 
-    $('#dt').DataTable( {
-        ajax: {
-            url: 'http://localhost:5000/api/report/' + module,
-            dataSrc: ''
-        },
-        columns: [
-            { data: 'label' },
-            { data: 'output.question' },
-            { data: 'answer' },
-            { data: 'output.short'},
-            { data: 'output.action'}
-        ],
-        paging: false,
-        order: [[0, "asc"]],
-    } );
+        return data;
+    }
+
+    $("#shortModal").on("show.bs.modal", event => {
+        let target = $(event.relatedTarget);
+        let answer = target.data('answer');
+        let $modal_body = $(this).find('.modal-body');
+        let $more_link = $(this).find('.more-link');
+
+        getShortOutput('asset', answer).then(output => {
+            $modal_body.text(output);
+            $more_link[0].href = `/report/full/asset/${answer}`;
+        });
+
+    });
 });

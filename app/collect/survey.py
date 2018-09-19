@@ -114,9 +114,9 @@ class Survey(object):
 
     def add_answers(self, data):
         # print "ADDING ANS: %s" % data
-        # import pdb;pdb.set_trace()
 
         self.current_survey[data.label] = data.answer        
+
         db.session.add(data)
         db.session.commit()
 
@@ -202,7 +202,7 @@ def collect(module=None):
                 # TODO: whats the shortcut for this?
                 if not type(answer) is list:
                     answer = [answer]
-                    
+
                 question_data = QuestionModel(label=question, answer=answer, survey=survey.survey_db)
                 survey.add_answers(question_data)
 

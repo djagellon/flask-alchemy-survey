@@ -21,8 +21,11 @@ TEST_RANGE = '%s!%s' % (TEST_MODULE, DEFAULT_RANGE)
 # Columns A-F
 SHEET_HEADERS = ["type", "label", "condition", "title", "answers", "datalabel"]
 
-# ColumnsF-O
+# Columns F-O
 OUTPUT_HEADERS = ["datalabel", "notes", "rating", "short", "long", "action", "metrics", "weight"]
+
+# Action Plan K
+ACTION_INDEX = 10
 
 def get_sheet_from_google(sheet=TEST_RANGE):
     store = file.Storage('credentials.json')
@@ -60,6 +63,12 @@ def main():
 
     for idx, row in enumerate(values):
 
+        # Process Action Plan
+        try:
+            action_labels, action_object = get_action_labels(row[ACTION_INDEX])
+        except IndexError:
+            pass
+
         ## page means new list
         if row[0] == 'page':
             survey.append(page)
@@ -68,11 +77,10 @@ def main():
         else:
             # Reporting Output. This saves to [module]_output.json
             # only the relevant rows: exclude 0-4
-            row_data = dict(zip(OUTPUT_HEADERS, row[5:])) 
-            # question_label = row_data['datalabel'].split('.')[0]
-
+            row_output = dict(zip(OUTPUT_HEADERS, row[5:])) 
+            row_output['actions'] = action_object
             try:
-                output[row_data['datalabel']] = row_data
+                output[row_output['datalabel']] = row_output
             except KeyError:
                 pass
 
@@ -80,7 +88,8 @@ def main():
         if not row[1]:
             question["answers"].append({
                 "text": row[4],
-                "label": row[5] 
+                "label": row[5],
+                "actions": action_labels 
             })
             continue
 
@@ -88,7 +97,8 @@ def main():
 
         question["answers"] = [{
             "text": row[4],
-            "label": row[5] 
+            "label": row[5], 
+            "actions": action_labels 
         }]
 
         del question['datalabel']
@@ -101,6 +111,23 @@ def main():
 
     survey_file = open("surveys/%s.json" % module, "w")
     survey_file.write(json.dumps(survey, indent=2, sort_keys=True))
+
+def get_action_labels(content):
+    labels = []
+    action = {}
+
+    lines = content.split('\n')
+
+    for l in lines:
+        line = l.split('~')
+
+        if len(line) > 1:
+            label = line[0].strip()
+            labels.append(label)
+            action[label] = line[1].strip()
+
+    return labels, action
+
 
 if __name__ == "__main__":
     main()

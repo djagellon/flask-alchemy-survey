@@ -20,6 +20,11 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
+    def to_dict(self):
+        return dict(id = self.id,
+                    username = self.username,
+                    email = self.email,
+                    roles = self.roles)
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -51,13 +56,31 @@ class SurveyModel(db.Model):
 class QuestionModel(db.Model):
     __tablename__ = 'questions'
 
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(55), nullable=False)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
     answer = db.Column(db.ARRAY(db.String))
+    actions = db.relationship('ActionModel', backref='questions', lazy='dynamic')
 
     def to_dict(self):
         return dict(id = self.id,
                     label = self.label,
                     answer = self.answer,
-                    survey_id = self.survey_id)
+                    survey_id = self.survey_id,
+                    actions = self.actions)
+
+class ActionModel(db.Model):
+    __tablename__ = 'actions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    label = db.Column(db.String(55), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'))
+    completed = db.Column(db.Boolean())
+    completed_on = db.Column(db.DateTime())
+
+    def to_dict(self):
+        return dict(id = self.id,
+                    label = self.label,
+                    question_id = self.question_id,
+                    completed = self.completed,
+                    completed_on = self.completed_on)
