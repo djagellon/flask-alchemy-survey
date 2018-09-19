@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for
 from flask_user import login_required, roles_required
 from app import db
 from app.report import bp
+from app.api import report, users
 
 from app.models import SurveyModel
 
@@ -11,10 +12,23 @@ def show_all_reports():
     data = db.session.query(SurveyModel).all() or []
     return render_template('reports_all.html', title="report", data=data)
 
+@bp.route('/report/full/<module>/<answer>')
+@login_required
+def show_full_output(module, answer):
+
+    if users.has_full_access():
+        data = report.get_output('long', module, answer)
+        return render_template('report_full.html', data=data.json)
+
+    return render_template('report_unlock.html')
+
+
 @bp.route('/report/<module>')
 @login_required
 def show_report(module):
-    return render_template('reports.html', title="report", module=module)
+    data = report.get_answer_for_module(module)
+
+    return render_template('reports.html', title="report", data=data.json, module=module)
 
 @bp.route('/delete')
 @roles_required('admin')

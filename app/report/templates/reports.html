@@ -5,32 +5,64 @@
 {% endblock %}
 
 {% block content %}
-<h2> Report for Module: {{module}}</h2>
-    </br/><br/>
-    <table id="dt" class="stripe row-border hover cell-border" style="width:100%">
-        <thead>
-            <tr>
-                <th>Label</th>
-                <th>Quetion</th>
-                <th>Answer</th>
-                <th>Output (short)</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-    </table>
 
-    <input type="button" value="Test Again" onclick="window.location.href='{{ url_for('survey.start', module='tester') }}'">
-    <br/><br/> 
+<h3> Report for Module: {{module}}</h3> 
 
-    <input type="button" value="Clear DB" onclick="window.location.href='{{ url_for('report.delete_all') }}'">
+<div class="list-group">
+    {% for answer in data %}
+
+        {% if answer.actions %}
+
+            {% for action in answer.actions %}
+                <a href="#" class="short-modal-link list-group-item" data-toggle="modal" data-answer="{{action}}" data-target="#shortModal">
+                    <div class="row">
+                        <div class="col-md-11">
+                            <h5>{{ answer.actions[action] }}</h5>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-warning btn-xs">
+                                Incomplete
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            {% endfor%}
+
+        {% elif answer.action %}
+            <a href="#" class="list-group-item">
+                {{answer.action | replace("\n", "<br/>") | safe}}
+            </a>
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+<div class="panel-footer">
+    <span class="text-right">
+        Total Score: 
+    </span>
+</div>
+
+<div id="shortModal" class="modal fade short-answer-lg" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="exampleModalLabel">More Info</h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <a href="#" role="link" type="submit" target="_blank" class="btn btn-link more-link pull-left">More Details</a>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
-{% block scripts %}
-    {{super()}}
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
-    
- 
+{% block extra_js %}
     <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
-
     <script type="text/javascript" src={{url_for("static", filename="js/report.js")}}></script>
 {% endblock %}
