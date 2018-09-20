@@ -54,3 +54,8 @@ def get_output(type, module, label):
 
     return jsonify(output)
 
+@bp.route('/admin/report/all')
+def admin_all_reports():
+    data = [s.to_dict() for s in SurveyModel.query.all() or []]
+
+    return jsonify(data)

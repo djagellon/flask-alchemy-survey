@@ -4,7 +4,7 @@ Converts a google sheet to a JSON object and writes it to a file
 from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
-import sys, json
+import sys, json, ast
 import pprint
 
 pp = pprint.PrettyPrinter(indent=2)
@@ -57,6 +57,7 @@ def main():
 
     values = google_data.get('values', [])
 
+    # import pdb;pdb.set_trace()
     survey = []
     page = []
     output = {}
@@ -84,22 +85,16 @@ def main():
             except KeyError:
                 pass
 
+        answers = expand_answers(row, action_labels)
+
         ## no question label means answer values belong to previous row
         if not row[1]:
-            question["answers"].append({
-                "text": row[4],
-                "label": row[5],
-                "actions": action_labels 
-            })
+            question["answers"] = question["answers"] + answers
             continue
 
         question = dict(zip(SHEET_HEADERS, row[:6]))
 
-        question["answers"] = [{
-            "text": row[4],
-            "label": row[5], 
-            "actions": action_labels 
-        }]
+        question["answers"] = answers 
 
         del question['datalabel']
 
@@ -111,6 +106,30 @@ def main():
 
     survey_file = open("surveys/%s.json" % module, "w")
     survey_file.write(json.dumps(survey, indent=2, sort_keys=True))
+
+def expand_answers(row, actions):
+    answer = []
+
+    try:
+        row_text = ast.literal_eval(row[4])
+    except (ValueError, SyntaxError):
+        row_text = row[4]
+
+    if isinstance(row_text, list):
+        for r in row_text:
+            answer.append({
+                "text": str(r),
+                "label": row[5],
+                "actions": actions
+            })
+    else:
+        answer.append({
+            "text": row[4],
+            "label": row[5],
+            "actions": actions
+        })
+
+    return answer
 
 def get_action_labels(content):
     labels = []

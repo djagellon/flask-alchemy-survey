@@ -48,10 +48,13 @@ class SurveyModel(db.Model):
     questions = db.relationship('QuestionModel', backref='survey', lazy='dynamic')
 
     def to_dict(self):
+        questions = [question.to_dict() for question in self.questions]
+        questions.sort(key=lambda x: x['label'])
+
         return dict(id = self.id,
                     module = self.module,
-                    questions = [question.to_dict() for question in self.questions])
-
+                    user = self.user_id,
+                    questions = questions)
 
 class QuestionModel(db.Model):
     __tablename__ = 'questions'
@@ -67,7 +70,7 @@ class QuestionModel(db.Model):
                     label = self.label,
                     answer = self.answer,
                     survey_id = self.survey_id,
-                    actions = self.actions)
+                    actions = [action.to_dict() for action in self.actions])
 
 class ActionModel(db.Model):
     __tablename__ = 'actions'
