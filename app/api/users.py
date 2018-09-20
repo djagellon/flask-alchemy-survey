@@ -14,5 +14,5 @@ def get_logged_in_user():
 
 @bp.route('/user/has_full_access/', methods=['GET'])
 def has_full_access():
-    user = get_user(current_user.id)
+    user = get_logged_in_user()
     return 'admin' in [role.name for role in user.roles]

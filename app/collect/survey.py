@@ -207,10 +207,8 @@ def collect(module=None):
                 survey.add_answers(question_data)
 
         if survey.page_index >= survey.survey_length:
-            print "FINISHING SURVEY>.."
             survey.finish()
-            # return render_template('endsurvey.html')
-            return redirect(url_for('report.show_all_reports'))
+            return render_template('endsurvey.html')
 
         form = survey.get_page()
 

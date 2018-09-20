@@ -9,8 +9,9 @@ from app.models import SurveyModel
 @bp.route('/report/all')
 @roles_required('admin')
 def show_all_reports():
-    data = db.session.query(SurveyModel).all() or []
-    return render_template('reports_all.html', title="report", data=data)
+    data = report.admin_all_reports()
+
+    return render_template('reports_all.html', title="report", data=data.json)
 
 @bp.route('/report/full/<module>/<answer>')
 @login_required
