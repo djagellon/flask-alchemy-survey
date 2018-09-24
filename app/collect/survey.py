@@ -6,6 +6,7 @@ from wtforms import Form, widgets, StringField, BooleanField, FieldList, Integer
 from wtforms.meta import DefaultMeta
 from wtforms.validators import Required
 from flask_wtf import FlaskForm
+from datetime import datetime
 
 import logging as log
 import json
@@ -121,10 +122,10 @@ class Survey(object):
         db.session.commit()
 
     def finish(self):
-        # import pdb;pdb.set_trace()
-        # db.session.commit()
+        self.survey_db.completed_on = datetime.now()
+        db.session.add(self.survey_db)
+        db.session.commit()
         # db.session.close()
-        pass
 
     def increment_page(self, page=None):
         if page:
@@ -185,9 +186,7 @@ def start(module):
     return render_template('start.html')
 
 @bp.route('/collect/', methods=['GET', 'POST'])
-def collect(module=None):
-    # TODO: Once user registration is implemented...
-    # - Retrive survey from db
+def collect():
     global gv
     survey = gv['survey']
 
@@ -208,7 +207,7 @@ def collect(module=None):
 
         if survey.page_index >= survey.survey_length:
             survey.finish()
-            return render_template('endsurvey.html')
+            return redirect(url_for('survey.end_survey', module=survey.module))
 
         form = survey.get_page()
 
@@ -219,7 +218,13 @@ def collect(module=None):
         try:
             form = survey.get_page()
         except IndexError:
-            # return render_template('endsurvey.html')
-            return redirect(url_for('report.show_all_reports'))
+            survey.finish()
+            return redirect(url_for('survey.end_survey', module=survey.module))
 
     return render_template('survey.html', form=form)
+
+@bp.route('/collect/<module>/end')
+@login_required
+def end_survey(module):
+
+    return render_template('endsurvey.html', module=module)

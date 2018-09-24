@@ -7,6 +7,15 @@
 {% block content %}
 </br/><br/>
 
-<p>Thank you for answering. You can move on to the next module, or view your dashboard.</p>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <h3>You have answered all the questions in this section. You can view your results or return to your dashboard. 
+        </h3>
+    </div>
 
+    <div class="panel-footer text-right">
+        <a type="button" class="btn btn-default" href="{{ url_for('report.show_report', module='asset')}}">View Results</a>
+        <a type="button" class="btn btn-default" href="{{ url_for('main.dashboard')}}">Dashboard</a>
+    </div>
+</div>
 {% endblock %}

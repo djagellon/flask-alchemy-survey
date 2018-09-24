@@ -1,0 +1,25 @@
+{% extends 'home.html' %}
+
+{% block header %}
+    <h1>{% block title %}Dashboard{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="panel panel-default panel-sm">
+        <div class="panel-heading">Your Surveys</div>
+            <ul class="list-group">
+            {% for complete in data.complete %}
+                <li class="list-group-item list-group-item-success">
+                    {{ complete.capitalize() }} - Completed
+                        <button class="btn btn-default btn-xs pull-right" onclick="window.location.href='{{ url_for('report.show_report', module=complete ) }}'">View Report</button>
+                </li>
+            {% endfor %}
+            {% for pending in data.pending %}
+                <li class="list-group-item list-group-item-warning">
+                    {{ pending.capitalize() }} - Pending
+                    <button class="btn btn-success btn-xs pull-right" onclick="window.location.href='{{ url_for('survey.start', module=pending ) }}'">Start</button>
+                </li>
+            {% endfor %}
+            </ul>
+    </div>
+{% endblock %}

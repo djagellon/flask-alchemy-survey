@@ -4,32 +4,49 @@ from app.api import bp, users
 from flask_user import current_user
 import json
 
+ALL_REPORTS = set(["asset", "governance", "risk", "remediation"])
+
+@bp.route('/reports/user/', defaults={'user_id': None}, methods=['GET'])
+@bp.route('/reports/user/<user_id>', methods=['GET'])
+def get_user_reports(user_id=None):
+
+    user = users.get_user(user_id)
+
+    completed = [r.module for r in user.surveys.all() if r.completed_on] 
+    pending = ALL_REPORTS - set(completed)
+
+    # import pdb;pdb.set_trace()
+    return jsonify({'complete': completed, 'pending': list(pending)})
+
 @bp.route('/report/<module>', methods=['GET'])
 def get_answer_for_module(module):
+
+    answers = []
 
     user = users.get_user(current_user.id)
 
     survey = user.surveys.filter_by(module=module).first()
 
-    # Solution lookup for each answer
-    with open('surveys/asset_output.json') as f:
-        outputs = json.load(f)
+    if survey and survey.questions:
+        # Solution lookup for each answer
+        with open('surveys/asset_output.json') as f:
+            outputs = json.load(f)
 
-    answers = []
 
-    for question in survey.questions.all():
-        data = question.to_dict()
+        for question in survey.questions.all():
+            data = question.to_dict()
 
-        try:
-            outdata = outputs[data['answer'][0]] 
-        except KeyError:
-            #TODO Handle open end data
-            outdata = outputs[data['label']]
+            try:
+                outdata = outputs[data['answer'][0]] 
+            except KeyError:
+                #TODO Handle open end data
+                outdata = outputs[data['label']]
 
-        answers.append(outdata)
+            answers.append(outdata)
 
     #sort data by weight
     answers.sort(key=lambda x: int(x['weight'] or 0), reverse=True)
+
     return jsonify(answers)
 
 
