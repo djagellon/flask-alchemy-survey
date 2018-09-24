@@ -17,7 +17,7 @@
 
       {% else %}
 
-          <span class="answer"> 
+          <ul class="answer"> 
             {{ field(**kwargs) }} 
           </span>
 
@@ -32,7 +32,6 @@
 {% block content %}
 
   {% if form %}
-  
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <br/>
@@ -42,15 +41,17 @@
           {% if q | has_open %}
             <span class="other_open option">{{ with_errors(q) }}</span>
           {% elif q.type != "CSRFTokenField" and q.type != "SubmitField" %}
+
             <div class="question">
-                <h3 class="question-text">{{ q.label }}</h3>
-                <span class="option">{{ with_errors(q) }}</span>
+                <h3 class="question-text">{{ q.label }}</h3> 
+                <span class="option">{{ with_errors(q) }}</span> 
             </div>
+
           {% endif %}
 
         {% endfor %}
       <br/><br/>
-      <input type="submit" value="Continue">
+      <input class="pull-right" type="submit" value="Continue">
     </form>
   {% else %}
     <form action="" method="post">

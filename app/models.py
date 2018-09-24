@@ -46,6 +46,7 @@ class SurveyModel(db.Model):
     module = db.Column(db.String(55))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     questions = db.relationship('QuestionModel', backref='survey', lazy='dynamic')
+    completed_on = db.Column(db.DateTime())
 
     def to_dict(self):
         questions = [question.to_dict() for question in self.questions]
@@ -54,7 +55,8 @@ class SurveyModel(db.Model):
         return dict(id = self.id,
                     module = self.module,
                     user = self.user_id,
-                    questions = questions)
+                    questions = questions,
+                    completed_on = self.completed_on)
 
 class QuestionModel(db.Model):
     __tablename__ = 'questions'
