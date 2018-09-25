@@ -1,8 +1,10 @@
-from flask import jsonify
-from app.models import SurveyModel
+from app import db
+from flask import jsonify, url_for
+from app.models import SurveyModel, QuestionModel, ActionModel
 from app.api import bp, users
 from flask_user import current_user
 import json
+from datetime import datetime
 
 ALL_REPORTS = set(["asset", "governance", "risk", "remediation"])
 
@@ -15,7 +17,6 @@ def get_user_reports(user_id=None):
     completed = [r.module for r in user.surveys.all() if r.completed_on] 
     pending = ALL_REPORTS - set(completed)
 
-    # import pdb;pdb.set_trace()
     return jsonify({'complete': completed, 'pending': list(pending)})
 
 @bp.route('/report/<module>', methods=['GET'])
@@ -36,11 +37,15 @@ def get_answer_for_module(module):
         for question in survey.questions.all():
             data = question.to_dict()
 
-            try:
-                outdata = outputs[data['answer'][0]] 
-            except KeyError:
-                #TODO Handle open end data
-                outdata = outputs[data['label']]
+            outdata = outputs[data['answer'][0]] 
+
+            # check if answers have been completed
+            for action in outdata['actions']:
+                outdata['actions'][action] = {
+                    'text': outdata['actions'][action],
+                    'complete': check_action_completeness(module, action),
+                    'action_url': url_for('api.complete_task', module=module, answer=action) 
+                }
 
             answers.append(outdata)
 
@@ -49,11 +54,50 @@ def get_answer_for_module(module):
 
     return jsonify(answers)
 
+def check_action_completeness(module, action):
+    # Determine if action has been marked as complete by the user
+    action_split = action.split('.')
+    q_label = action_split[0]
+    q_answer = '.'.join(action_split[:-1])
+
+    user = users.get_user(current_user.id)
+    survey = user.surveys.filter_by(module=module).first()
+    question = survey.questions.filter_by(label=q_label).first()
+    answer = question.actions.filter_by(label=action).first()
+
+    if answer:
+        return answer.completed
+
+    return False
+
 
 def get_answer_label(label):
     # labels can come in with qlabel.answer.action
     # we only care about the qlabel.answer
     return '.'.join(label.split('.')[:2])
+
+@bp.route('/report/complete/<module>/<answer>', methods=['GET', 'POST'])
+def complete_task(module, answer):
+    ### Mark an answer as completed ###
+
+    ans_split = answer.split('.')
+    q_label = ans_split[0]
+
+    user = users.get_user(current_user.id)
+    survey = user.surveys.filter_by(module=module).first()
+    question = survey.questions.filter_by(label=q_label).first()
+
+    # TODO: Check for existing action
+    action = ActionModel(
+        label=answer, 
+        question_id=question.id, 
+        completed=True, 
+        completed_on=datetime.now())
+
+    db.session.add(action)
+    db.session.commit()
+
+    return jsonify({'success': True})
 
 @bp.route('/report/<type>/<module>/<label>', methods=['GET'])
 def get_output(type, module, label):

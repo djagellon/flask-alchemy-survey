@@ -14,14 +14,17 @@
         {% if answer.actions %}
 
             {% for action in answer.actions %}
+                {% set status = answer.actions[action]['complete']%}
                 <a href="#" class="short-modal-link list-group-item" data-toggle="modal" data-answer="{{action}}" data-target="#shortModal">
                     <div class="row">
                         <div class="col-md-11">
-                            <h5>{{ answer.actions[action] }}</h5>
+                            <h5>{{ answer.actions[action]['text'] }}</h5>
                         </div>
                         <div class="col-md-1">
-                            <button class="btn btn-warning btn-xs">
-                                Incomplete
+                            <button 
+                                data-status="{{ status }}" 
+                                class="mark-complete btn btn-xs {{'btn-success' if status else 'btn-warning'}}">
+                                {{ 'Complete' if status else 'Incomplete' }}
                             </button>
                         </div>
                     </div>
