@@ -1,30 +1,33 @@
 from app import db
 from flask import jsonify, url_for
-from app.models import SurveyModel, QuestionModel, ActionModel
-from app.api import bp, users
+from app.models import User, SurveyModel, QuestionModel, ActionModel
+from app.api import bp
 from flask_user import current_user
 import json
 from datetime import datetime
 
 ALL_REPORTS = set(["asset", "governance", "risk", "remediation"])
 
+def get_user():
+    return User.query.get_or_404(current_user.id)
+
 @bp.route('/reports/user/', defaults={'user_id': None}, methods=['GET'])
-@bp.route('/reports/user/<user_id>', methods=['GET'])
+@bp.route('/reports/user/<user_id>/', methods=['GET'])
 def get_user_reports(user_id=None):
 
-    user = users.get_user(user_id)
+    user = get_user()
 
     completed = [r.module for r in user.surveys.all() if r.completed_on] 
     pending = ALL_REPORTS - set(completed)
 
     return jsonify({'complete': completed, 'pending': list(pending)})
 
-@bp.route('/report/<module>', methods=['GET'])
+@bp.route('/reports/<module>/', methods=['GET'])
 def get_answer_for_module(module):
 
     answers = []
 
-    user = users.get_user(current_user.id)
+    user = get_user()
 
     survey = user.surveys.filter_by(module=module).first()
 
@@ -60,7 +63,7 @@ def check_action_completeness(module, action):
     q_label = action_split[0]
     q_answer = '.'.join(action_split[:-1])
 
-    user = users.get_user(current_user.id)
+    user = get_user()
     survey = user.surveys.filter_by(module=module).first()
     question = survey.questions.filter_by(label=q_label).first()
     answer = question.actions.filter_by(label=action).first()
@@ -76,14 +79,14 @@ def get_answer_label(label):
     # we only care about the qlabel.answer
     return '.'.join(label.split('.')[:2])
 
-@bp.route('/report/complete/<module>/<answer>', methods=['GET', 'POST'])
+@bp.route('/reports/complete/<module>/<answer>', methods=['GET', 'POST'])
 def complete_task(module, answer):
     ### Mark an answer as completed ###
 
     ans_split = answer.split('.')
     q_label = ans_split[0]
 
-    user = users.get_user(current_user.id)
+    user = get_user()
     survey = user.surveys.filter_by(module=module).first()
     question = survey.questions.filter_by(label=q_label).first()
 
@@ -99,7 +102,7 @@ def complete_task(module, answer):
 
     return jsonify({'success': True})
 
-@bp.route('/report/<type>/<module>/<label>', methods=['GET'])
+@bp.route('/reports/<type>/<module>/<label>', methods=['GET'])
 def get_output(type, module, label):
 
     label = get_answer_label(label)

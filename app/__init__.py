@@ -1,7 +1,7 @@
 import os
 import logging
 
-from logging.handlers import SMTPHandler
+from logging.handlers import RotatingFileHandler, SMTPHandler
 from flask import Flask, request, current_app
 from flask_bootstrap import Bootstrap
 from config import Config
@@ -44,6 +44,20 @@ def create_app():
 
 
     if not app.debug:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+
+        file_handler = RotatingFileHandler('logs/vera.log', maxBytes=10240, backupCount=10)
+
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('Vera startup')
+        
         if app.config['MAIL_SERVER']:
             auth = None
 

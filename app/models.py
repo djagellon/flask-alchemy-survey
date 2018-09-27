@@ -24,7 +24,7 @@ class User(db.Model, UserMixin):
         return dict(id = self.id,
                     username = self.username,
                     email = self.email,
-                    roles = self.roles)
+                    roles = [role.name for role in self.roles])
 
 class Role(db.Model):
     __tablename__ = 'roles'
