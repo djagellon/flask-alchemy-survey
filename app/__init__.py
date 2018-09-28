@@ -42,7 +42,6 @@ def create_app():
     def context_processor():
         return dict(user_manager=user_manager)
 
-
     if not app.debug:
         if not os.path.exists('logs'):
             os.mkdir('logs')

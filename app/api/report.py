@@ -1,7 +1,9 @@
 from app import db
 from flask import jsonify, url_for
+from flask import g
 from app.models import User, SurveyModel, QuestionModel, ActionModel
 from app.api import bp
+from app.api.auth import token_auth
 from flask_user import current_user
 import json
 from datetime import datetime
@@ -9,10 +11,13 @@ from datetime import datetime
 ALL_REPORTS = set(["asset", "governance", "risk", "remediation"])
 
 def get_user():
-    return User.query.get_or_404(current_user.id)
+
+    user = getattr(g, 'current_user', current_user)
+
+    return User.query.get_or_404(user.id)
 
 @bp.route('/reports/user/', defaults={'user_id': None}, methods=['GET'])
-@bp.route('/reports/user/<user_id>/', methods=['GET'])
+@token_auth.login_required
 def get_user_reports(user_id=None):
 
     user = get_user()
@@ -23,6 +28,7 @@ def get_user_reports(user_id=None):
     return jsonify({'complete': completed, 'pending': list(pending)})
 
 @bp.route('/reports/<module>/', methods=['GET'])
+@token_auth.login_required
 def get_answer_for_module(module):
 
     answers = []
@@ -80,6 +86,7 @@ def get_answer_label(label):
     return '.'.join(label.split('.')[:2])
 
 @bp.route('/reports/complete/<module>/<answer>', methods=['GET', 'POST'])
+@token_auth.login_required
 def complete_task(module, answer):
     ### Mark an answer as completed ###
 
@@ -103,6 +110,7 @@ def complete_task(module, answer):
     return jsonify({'success': True})
 
 @bp.route('/reports/<type>/<module>/<label>', methods=['GET'])
+@token_auth.login_required
 def get_output(type, module, label):
 
     label = get_answer_label(label)
@@ -119,6 +127,7 @@ def get_output(type, module, label):
     return jsonify(output)
 
 @bp.route('/admin/report/all')
+@token_auth.login_required
 def admin_all_reports():
     data = [s.to_dict() for s in SurveyModel.query.all() or []]
 
