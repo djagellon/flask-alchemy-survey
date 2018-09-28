@@ -1,7 +1,11 @@
+import base64
+import os
+from flask import current_app 
 from app import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_user import UserMixin
+from flask_user import UserMixin, TokenManager, PasswordManager
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'user'
@@ -17,6 +21,9 @@ class User(db.Model, UserMixin):
     surveys = db.relationship('SurveyModel', backref='user', lazy='dynamic')
     roles = db.relationship('Role', secondary='user_roles', backref=db.backref('user', lazy='dynamic'))
 
+    token = db.Column(db.String(32), index=True, unique=True)
+    token_expiration = db.Column(db.DateTime)
+
     def __repr__(self):
         return '<User {}>'.format(self.username)
 
@@ -24,7 +31,36 @@ class User(db.Model, UserMixin):
         return dict(id = self.id,
                     username = self.username,
                     email = self.email,
-                    roles = self.roles)
+                    roles = [role.name for role in self.roles])
+
+    def check_password(self, password):
+        return current_app.user_manager.verify_password(password, self.password)
+
+    def get_token(self, expires_in=3600):
+        now = datetime.utcnow()
+
+        if self.token and self.token_expiration > now + timedelta(seconds=60):
+            return self.token
+
+        self.token = base64.b64encode(os.urandom(24)).decode('utf-8')
+        self.token_expiration = now + timedelta(seconds=expires_in)
+
+        db.session.add(self)
+
+        return self.token
+
+    def revoke_token(self):
+        self.token_expiration = datetime.utcnow() - timedelta(seconds=1)
+
+    @staticmethod
+    def check_token(token):
+        user = User.query.filter_by(token=token).first()
+
+        if user is None or user.token_expiration < datetime.utcnow():
+            return None
+
+        return user
+
 
 class Role(db.Model):
     __tablename__ = 'roles'

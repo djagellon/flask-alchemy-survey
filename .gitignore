@@ -1,6 +1,7 @@
 veraenv/
 venv/
 surveys/
+logs/
 *.pyc
 .flaskenv
 client_secret.json

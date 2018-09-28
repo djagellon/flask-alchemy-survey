@@ -1,7 +1,7 @@
 $(function() {
 
     async function getShortOutput(modal, label) {
-        let output_url = `/api/report/short/${modal}/${label}`;
+        let output_url = `/api/reports/short/${modal}/${label}`;
         let response = await fetch(output_url);
         let data = await response.json();
 
@@ -9,7 +9,7 @@ $(function() {
     }
 
     async function markComplete(module, action) {
-        let complete_url = `/api/report/complete/${module}/${action}`;
+        let complete_url = `/api/reports/complete/${module}/${action}`;
         let response = await fetch(complete_url);
         let data = await response.json();
 
@@ -33,8 +33,13 @@ $(function() {
                 if (res.success) {
                     $this.removeClass('btn-warning').addClass('btn-success');
                     $this.text('Complete');
+                } else {
+                    throw res.error;
                 }
+            }).catch(err => {
+                alert('Ooops! Something went wrong: ' + err)
             });
+
         }
 
         event.stopPropagation();
