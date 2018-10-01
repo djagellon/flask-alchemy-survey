@@ -8,7 +8,7 @@ client_secret.json
 credentials.json
 
 # for now
-config.py
+#config.py
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
