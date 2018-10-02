@@ -80,6 +80,8 @@ def main():
             # only the relevant rows: exclude 0-4
             row_output = dict(zip(OUTPUT_HEADERS, row[5:])) 
             row_output['actions'] = action_object
+            row_output['weight'] = row_output.get('weight', 0)
+
             try:
                 output[row_output['datalabel']] = row_output
             except KeyError:
