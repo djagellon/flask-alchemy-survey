@@ -123,11 +123,17 @@ def expand_answers(row, actions):
                 "actions": actions
             })
     else:
-        answer.append({
+
+        ans_obj = {
             "text": row[4],
             "label": row[5],
             "actions": actions
-        })
+        }
+
+        if '.other' in ans_obj['label']:
+            ans_obj['open'] = True
+
+        answer.append(ans_obj)
 
     return answer
 

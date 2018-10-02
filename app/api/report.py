@@ -39,24 +39,27 @@ def get_answer_for_module(module):
 
     if survey and survey.questions:
         # Solution lookup for each answer
-        with open('surveys/asset_output.json') as f:
+        with open('surveys/%s_output.json' % module) as f:
             outputs = json.load(f)
 
 
         for question in survey.questions.all():
             data = question.to_dict()
 
-            outdata = outputs[data['answer'][0]] 
+            answer = data['answer'][0]
+
+            outdata = outputs.get(answer, outputs.get(data['label'], None))
 
             # check if answers have been completed
-            for action in outdata['actions']:
-                outdata['actions'][action] = {
-                    'text': outdata['actions'][action],
-                    'complete': check_action_completeness(module, action),
-                    'action_url': url_for('api.complete_task', module=module, answer=action) 
-                }
+            if outdata:
+                for action in outdata['actions']:
+                    outdata['actions'][action] = {
+                        'text': outdata['actions'][action],
+                        'complete': check_action_completeness(module, action),
+                        'action_url': url_for('api.complete_task', module=module, answer=action) 
+                    }
 
-            answers.append(outdata)
+                answers.append(outdata)
 
     #sort data by weight
     answers.sort(key=lambda x: int(x['weight'] or 0), reverse=True)

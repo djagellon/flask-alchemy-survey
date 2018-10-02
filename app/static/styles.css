@@ -16,3 +16,12 @@ a:focus {
 ul {
     list-style: none;
 }
+
+.other_open .answer {
+    padding-inline-start: 100px;
+}
+
+form textarea {
+     width: 400px;
+     height: 100px;
+}
