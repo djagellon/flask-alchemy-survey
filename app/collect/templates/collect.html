@@ -6,3 +6,6 @@
 
 {% block content %}{% endblock %}
 
+{% block extra_js %}
+    <script type="text/javascript" src={{url_for("static", filename="js/collect.js")}}></script>
+{% endblock %}
