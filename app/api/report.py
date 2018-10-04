@@ -37,34 +37,39 @@ def get_answer_for_module(module):
 
     survey = user.surveys.filter_by(module=module).first()
 
+    with open('surveys/%s_output.json' % module) as f:
+        outputs = json.load(f)
+
+    def get_outputs_for_answer(answer):
+        outdata = outputs.get(answer, outputs.get(data['label'], None))
+
+        # check if answers have been completed
+        if outdata:
+            for action in outdata['actions']:
+                outdata['actions'][action] = {
+                    'text': outdata['actions'][action],
+                    'complete': check_action_completeness(module, action)
+                }
+
+        return outdata
+
     if survey and survey.questions:
         # Solution lookup for each answer
-        with open('surveys/%s_output.json' % module) as f:
-            outputs = json.load(f)
-
 
         for question in survey.questions.all():
             data = question.to_dict()
 
-            answer = data['answer'][0]
+            question_answers = data['answer']
 
-            outdata = outputs.get(answer, outputs.get(data['label'], None))
-
-            # check if answers have been completed
-            if outdata:
-                for action in outdata['actions']:
-                    outdata['actions'][action] = {
-                        'text': outdata['actions'][action],
-                        'complete': check_action_completeness(module, action),
-                        'action_url': url_for('api.complete_task', module=module, answer=action) 
-                    }
-
+            for answer in question_answers:
+                outdata = get_outputs_for_answer(answer)
                 answers.append(outdata)
 
     #sort data by weight
     answers.sort(key=lambda x: int(x['weight'] or 0), reverse=True)
 
     return jsonify(answers)
+
 
 def check_action_completeness(module, action):
     # Determine if action has been marked as complete by the user
