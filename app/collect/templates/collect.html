@@ -4,7 +4,12 @@
   <h1>{% block title %}Questionaire{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+<div class="panel panel-default">
+        {% block questions %}
+        {% endblock %}
+</div> 
+{% endblock %}
 
 {% block extra_js %}
     <script type="text/javascript" src={{url_for("static", filename="js/collect.js")}}></script>

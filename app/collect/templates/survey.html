@@ -6,7 +6,7 @@
     <div class="form_field">
       {% if field.errors %}
 
-          {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
+          {% set css_class = 'answer has_error ' + kwargs.pop('class', '') %}
           {{ field(class=css_class, **kwargs) }}
 
           <div class="errors">
@@ -17,9 +17,9 @@
 
       {% else %}
 
-          <ul class="answer"> 
+          <div class="answer"> 
             {{ field(**kwargs) }} 
-          </span>
+          </div>
 
       {% endif %}
     </div>
@@ -29,34 +29,31 @@
   <h1>{% block title %}Questoinnaire{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}
+{% block questions %}
 
   {% if form %}
-    <form action="" method="post">
-        {{ form.hidden_tag() }}
-        <br/>
+      <form action="" method="post">
+        <div class="panel-body">
+          {{ form.hidden_tag() }}
+          <br/>
 
-        {% for q in form %}
+          {% for q in form %}
 
-          {% if q | has_open %}
-            <span class="other_open option">{{ with_errors(q) }}</span>
-          {% elif q.type != "CSRFTokenField" and q.type != "SubmitField" %}
+            {% if q | has_open %}
+              <span class="other_open option">{{ with_errors(q) }}</span>
+            {% elif q.type != "CSRFTokenField" and q.type != "SubmitField" %}
 
-            <div class="question">
-                <h3 class="question-text">{{ q.label }}</h3> 
-                <span class="option">{{ with_errors(q) }}</span> 
-            </div>
+              <div class="question">
+                  <h4 class="question-text">{{ q.label }}</h4> 
+                  <span class="option">{{ with_errors(q) }}</span> 
+              </div>
 
-          {% endif %}
+            {% endif %}
 
-        {% endfor %}
-      <br/><br/>
-      <input class="pull-right" type="submit" value="Continue">
-    </form>
-  {% else %}
-    <form action="" method="post">
-      <input type="submit" value="Continue">
-    </form>
+          {% endfor %}
+        </div>
+        <input class="continue btn btn-default pull-right" type="submit" value="Continue">
+      </form>
   {% endif %}
 
 {% endblock %}

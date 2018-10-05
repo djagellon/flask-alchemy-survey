@@ -10,11 +10,12 @@ $(function() {
         $input.prop('disabled', true);
 
         $question.change((e) => {
-            let val = e.target.value;
-            let $input = $('#' + val.split('.')[0] + '_other');
-            let input_id = $input.attr('id').replace('_', '.');
+            let question = event.currentTarget;
+            let $other = $(question).find('input[value$=".other"]');
+            let val = $other.val();
+            let $open_input = $('#' + val.replace('.', '_'));
 
-            $input.prop('disabled', val !== input_id);
+            $open_input.prop('disabled', !$other.prop('checked'));
         });
 
     });

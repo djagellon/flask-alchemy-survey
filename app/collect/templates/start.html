@@ -4,14 +4,16 @@
   <h1>{% block title %}Questoinnaire{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}
+{% block questions %}
 
+    <div class="panel-body">
         <h2> Welcome, please answer the following questions about...</h2>
         <br/>
         <br/>
         <p>Click Start to begin</p>
 
-        <input type="button" value="Start" onclick="window.location.href='{{ url_for('survey.collect') }}'">
+    </div>
+    <input class="continue btn btn-default pull-right" type="button" value="Start" onclick="window.location.href='{{ url_for('survey.collect') }}'">
 
 {% endblock %}
 
