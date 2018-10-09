@@ -8,6 +8,10 @@ a:focus {
   border: none;
 }
 
+.answer select, .answer textarea {
+  margin-inline-start: 40px;
+}
+
 .col-nopadding {
     padding-left: 0 !important;
     padding-right: 0 !important;
