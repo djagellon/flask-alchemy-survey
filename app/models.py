@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     active = db.Column(db.Boolean(), server_default='0')
 
     surveys = db.relationship('SurveyModel', backref='user', lazy='dynamic')
+    preferences = db.relationship('Preferences', secondary='user_preferences', backref='user', lazy='dynamic')
     roles = db.relationship('Role', secondary='user_roles', backref=db.backref('user', lazy='dynamic'))
 
     token = db.Column(db.String(32), index=True, unique=True)
@@ -31,7 +32,8 @@ class User(db.Model, UserMixin):
         return dict(id = self.id,
                     username = self.username,
                     email = self.email,
-                    roles = [role.name for role in self.roles])
+                    roles = [role.name for role in self.roles],
+                    preferences = {p.name: p.preference for p in self.preferences})
 
     def check_password(self, password):
         return current_app.user_manager.verify_password(password, self.password)
@@ -61,6 +63,20 @@ class User(db.Model, UserMixin):
 
         return user
 
+    def get_preference(self, pref):
+        prefs = {p.name: p.preference for p in self.preferences}
+
+        return prefs.get(pref, None)
+
+    @property
+    def admin_controls_on(self):
+        return self.get_preference('admin_controls') == 'on'
+
+    @property
+    def is_admin(self):
+        return 'admin' in [role.name for role in self.roles]
+    
+
 
 class Role(db.Model):
     __tablename__ = 'roles'
@@ -74,6 +90,20 @@ class UserRoles(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
     
+
+class Preferences(db.Model):
+    __tablename__ = 'preferences'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), nullable=False, server_default=u'', unique=True)  
+    preference = db.Column(db.String())
+
+
+class UserPreferences(db.Model):
+    __tablename__ = 'user_preferences'
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+    preference_id = db.Column(db.Integer(), db.ForeignKey('preferences.id', ondelete='CASCADE'))
+
 
 class SurveyModel(db.Model):
     __tablename__ = 'survey'

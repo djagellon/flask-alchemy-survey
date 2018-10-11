@@ -36,6 +36,20 @@
           </ul> 
 
           <ul class="nav navbar-nav navbar-right">
+            {% if current_user.is_admin %}
+              <li>
+                <a href="#" id="toggle_admin">
+                  admin 
+                  {% if current_user.admin_controls_on %}
+                   <span class="text-success">on</span>
+                   {% else %}
+                   <span class="text-danger">off</span>
+                  {% endif %}
+                </a>
+              </li>
+
+            {% endif %}
+
             {% if current_user.is_anonymous %}
                 <li><a href="{{ url_for('user.login')}}">Login</a></li>          
             {% else %}
@@ -80,5 +94,8 @@
 {% endblock %}
 
 {# *** Allow sub-templates to insert extra html to the bottom of the body *** #}
-{% block extra_js %}{% endblock %}
+
+  {% block extra_js %}
+      <script type="text/javascript" src={{url_for("static", filename="js/framework.js")}}></script>
+  {% endblock %}
 {% endblock %}
