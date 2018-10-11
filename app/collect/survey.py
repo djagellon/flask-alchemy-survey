@@ -1,10 +1,7 @@
 from app import db
-from app.collect import bp
-from flask import Blueprint, render_template, redirect, url_for
-from flask_user import login_required, current_user
+from flask_user import current_user
 from wtforms import Form, widgets, StringField, TextAreaField, BooleanField, FieldList, IntegerField, RadioField, SelectField, FormField, SubmitField, SelectMultipleField
 from wtforms.meta import DefaultMeta
-from wtforms.validators import Required
 from flask_wtf import FlaskForm
 from datetime import datetime
 
@@ -12,10 +9,6 @@ import logging as log
 import json
 
 from app.models import User, SurveyModel, QuestionModel
-
-gv = {}
-
-IGNORE_FIELDS = set('csrf_token submit'.split())
 
 log.basicConfig(level=log.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -36,7 +29,7 @@ class TextareaField(TextAreaField):
 
 class MultiField(SelectMultipleField):
     """
-    A multiple-select, except displays a list of checkboxes.
+    A multiple-select
 
     Iterating the field will produce subfields, allowing custom rendering of
     the enclosed checkbox fields.
@@ -53,18 +46,15 @@ class Survey(object):
         self.questions = self.load_survey()
         self.survey_length = len(self.questions)
         self.survey_db = self.get_surveyModel(module)
-
-        # track answers locally until we figure out db sessions :(
         self.current_survey = {}
 
     def get_surveyModel(self, module):
         # search users db for the survey
         # create one if does not exist
 
-        user = User.query.filter_by(id=current_user.id).first()
+        user = User.query.get_or_404(current_user.id)
         survey = user.surveys.filter_by(module=module).first()
 
-        # import pdb;pdb.set_trace()
         if not survey:
             survey = SurveyModel(module=module, user=user)
             db.session.add(survey)
@@ -77,8 +67,6 @@ class Survey(object):
 
         return survey
 
-    # def get_user_survey_for_module(module):
-
     def load_survey(self):
         try:
             log.debug("LOADING DATA FROM: %s" % self.module)
@@ -90,19 +78,13 @@ class Survey(object):
 
     def show_question(self, cond):
         show = False
-        # cond = cond.lower()
 
         if not cond or cond == 'all':
             return True
 
         cond_question, cond_answer = cond.split('.')
-        # questions = [q.to_dict() for q in self.current_survey]
         answers = self.current_survey.get(cond_question, []) 
 
-        # add this back when we figure out sessions
-        # question = self.survey_db.questions.filter_by(label=cond_question).first()
-
-        # import pdb;pdb.set_trace()
         try:
             show = cond in answers
         except IndexError:
@@ -110,15 +92,15 @@ class Survey(object):
             log.warn("Question not found when checking condition: [%s]." % cond)
             return True
 
-        log.debug("CONDITION: %s" % show)
+        log.info("CONDITION: %s for QUESTION: %s ANSWERS: %s" % (show, cond, answers) )
         return show
 
     def get_questions(self):
         return self.questions[self.page_index]
 
-    def add_answers(self, data):
-        # print "ADDING ANS: %s" % data
+    def add_answers(self, question, answer):
 
+        data = QuestionModel(label=question, answer=answer, survey=self.survey_db)
         self.current_survey[data.label] = data.answer        
 
         db.session.add(data)
@@ -128,13 +110,19 @@ class Survey(object):
         self.survey_db.completed_on = datetime.now()
         db.session.add(self.survey_db)
         db.session.commit()
-        # db.session.close()
 
     def increment_page(self, page=None):
         if page:
             self.page_index = page 
         else:
             self.page_index += 1
+
+    def is_complete(self):
+        if self.page_index >= self.survey_length:
+            self.finish()
+            return True
+
+        return False
 
     def get_page(self):
     # This is the suggested way to create dynamic forms according to docs:
@@ -154,6 +142,7 @@ class Survey(object):
             label = question['label']
 
             if not self.show_question(question['condition']):
+                # Question is skipped based on previous answers
                 continue 
 
             if len(question['answers']) > 1:
@@ -176,58 +165,3 @@ class Survey(object):
                 setattr(DynamicForm, other_label, StringField(id=other_label, render_kw={'class': 'other_option'}))
 
         return DynamicForm()
-
-@bp.route('/collect/<module>/start')
-@login_required
-def start(module):
-    # TODO: Once user registration is implemented...
-    # - Check for existing Survey in the db
-    # - Create one if it does not exist
-    global gv
-    gv['survey'] = Survey(module)
-
-    return render_template('start.html')
-
-@bp.route('/collect/', methods=['GET', 'POST'])
-def collect():
-    global gv
-    survey = gv['survey']
-
-    form = survey.get_page()
-
-    if form and form.validate_on_submit():
-        survey.increment_page()
-
-        for question, answer in form.data.items():
-
-            if answer and question not in IGNORE_FIELDS:
-                # TODO: whats the shortcut for this?
-                if not type(answer) is list:
-                    answer = [answer]
-
-                question_data = QuestionModel(label=question, answer=answer, survey=survey.survey_db)
-                survey.add_answers(question_data)
-
-        if survey.page_index >= survey.survey_length:
-            survey.finish()
-            return redirect(url_for('survey.end_survey', module=survey.module))
-
-        form = survey.get_page()
-
-    while not len(form._unbound_fields):
-        # no fields in page, go to next page
-        log.debug("***************** SKIPPPIING ***************** ")
-        survey.increment_page()
-        try:
-            form = survey.get_page()
-        except IndexError:
-            survey.finish()
-            return redirect(url_for('survey.end_survey', module=survey.module))
-
-    return render_template('survey.html', form=form)
-
-@bp.route('/collect/<module>/end')
-@login_required
-def end_survey(module):
-
-    return render_template('endsurvey.html', module=module)

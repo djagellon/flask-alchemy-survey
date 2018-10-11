@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_user import login_required, roles_required
 from app import db
 from app.report import bp
@@ -16,8 +16,9 @@ def show_all_reports():
 @bp.route('/report/full/<module>/<answer>')
 @login_required
 def show_full_output(module, answer):
+    access = users.get_access()
 
-    if users.has_full_access():
+    if access.json['admin']:
         data = report.get_output('long', module, answer)
         return render_template('report_full.html', data=data.json)
 
@@ -31,13 +32,13 @@ def show_report(module):
 
     return render_template('reports.html', title="report", data=data.json, module=module)
 
-@bp.route('/delete')
+@bp.route('/report/delete', defaults={'module': None})
+@bp.route('/report/delete/<module>')
 @roles_required('admin')
-def delete_all():
-    data = db.session.query(SurveyModel).all() 
+def delete_survey(module=None):
+    result = report.delete_survey(module)
 
-    for s in data:
-        db.session.delete(s)
-
-    db.session.commit()
-    return redirect(url_for('report.show_all_reports'))
+    if result.json['success']:
+        flash('Data erased.', 'info')
+        
+    return redirect(url_for('main.dashboard'))

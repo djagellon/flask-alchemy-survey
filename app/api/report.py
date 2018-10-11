@@ -4,7 +4,7 @@ from flask import g
 from app.models import User, SurveyModel, QuestionModel, ActionModel
 from app.api import bp
 from app.api.auth import token_auth
-from flask_user import current_user
+from flask_user import current_user, roles_required
 import json
 from datetime import datetime
 
@@ -136,7 +136,26 @@ def get_output(type, module, label):
 
 @bp.route('/admin/report/all')
 @token_auth.login_required
+@roles_required('admin')
 def admin_all_reports():
     data = [s.to_dict() for s in SurveyModel.query.all() or []]
 
     return jsonify(data)
+
+@bp.route('/admin/delete/<module>')
+@token_auth.login_required
+@roles_required('admin')
+def delete_survey(module=None):
+
+    user = get_user()
+    
+    if module:
+        data = user.surveys.filter_by(module=module).all()
+    else:
+        data = user.surveys.all() 
+
+    for s in data:
+        db.session.delete(s)
+
+    db.session.commit()
+    return jsonify({'success': True})

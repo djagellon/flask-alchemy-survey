@@ -22,4 +22,14 @@
             {% endfor %}
             </ul>
     </div>
+
+    {% if current_user.is_admin and current_user.admin_controls_on %}
+    <div class="panel panel-default panel-sm">
+        <div class="panel-heading">ADMIN</div>
+        <li class="list-group-item list-group-item">
+            <a href="{{ url_for('report.show_all_reports', module=module) }}">View ALL Data</a>
+            <a type="button" class="btn btn-xs btn-danger pull-right" href="{{ url_for('report.delete_survey') }}">Clear My Answers</a>
+        </li>
+    </div>
+    {% endif %}
 {% endblock %}

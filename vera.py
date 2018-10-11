@@ -1,5 +1,6 @@
 from app import create_app, db
-from app.models import User, SurveyModel, QuestionModel, Role, UserRoles, ActionModel
+from app.models import User, SurveyModel, QuestionModel, Role, UserRoles, ActionModel, \
+Preferences, UserPreferences
 
 
 app = create_app()
@@ -15,6 +16,8 @@ def make_shell_context():
             'User': User, 
             'Role': Role,
             'UserRoles': UserRoles,
+            'Preferences': Preferences,
+            'UserPreferences': UserPreferences,
             'SurveyModel': SurveyModel, 
             'QuestionModel': QuestionModel,
             'ActionModel': ActionModel}

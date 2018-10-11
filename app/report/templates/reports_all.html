@@ -25,5 +25,5 @@
             </div>
         {% endfor %}
 
-    <input type="button" value="Clear DB" onclick="window.location.href='{{ url_for('report.delete_all') }}'">
+    <input type="button" class="btn btn-danger" value="Clear DB" onclick="window.location.href='{{ url_for('report.delete_survey') }}'">
 {% endblock %}
