@@ -6,14 +6,14 @@
     <div class="form_field">
       {% if field.errors %}
 
-          {% set css_class = 'answer has_error ' + kwargs.pop('class', '') %}
+          {% set css_class = 'answer has_error' + kwargs.pop('class', '') %}
           {{ field(class=css_class, **kwargs) }}
 
-          <div class="errors">
+          <ul class="answer errors">
             {% for error in field.errors %}
-              <p>{{ error }}</p>
+              <li class="text-danger"><strong>{{ error }}</strong></li>
             {% endfor %}
-          </div>
+          </ul>
 
       {% else %}
 
