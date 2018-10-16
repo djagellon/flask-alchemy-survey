@@ -95,8 +95,10 @@ def get_answer_label(label):
 
 @bp.route('/reports/complete/<module>/<answer>', methods=['GET', 'POST'])
 @token_auth.login_required
-def complete_task(module, answer):
-    ### Mark an answer as completed ###
+def toggle_task(module, answer):
+    """ 
+    Toggles answers if they exists, marks them complete if it doesn't
+    """
 
     ans_split = answer.split('.')
     q_label = ans_split[0]
@@ -104,18 +106,22 @@ def complete_task(module, answer):
     user = get_user()
     survey = user.surveys.filter_by(module=module).first()
     question = survey.questions.filter_by(label=q_label).first()
+    action = question.actions.filter_by(label=answer).first()
 
-    # TODO: Check for existing action
-    action = ActionModel(
-        label=answer, 
-        question_id=question.id, 
-        completed=True, 
-        completed_on=datetime.now())
+    if action:
+        action.completed = not action.completed
+
+    else:
+        action = ActionModel(
+            label=answer, 
+            question_id=question.id, 
+            completed=True, 
+            completed_on=datetime.now())
 
     db.session.add(action)
     db.session.commit()
 
-    return jsonify({'success': True})
+    return jsonify({'success': True, 'complete': action.completed})
 
 @bp.route('/reports/<type>/<module>/<label>', methods=['GET'])
 @token_auth.login_required

@@ -8,7 +8,7 @@ $(function() {
         return data;
     }
 
-    async function markComplete(module, action) {
+    async function toggleAction(module, action) {
         let complete_url = `/api/reports/complete/${module}/${action}`;
         let response = await fetch(complete_url);
         let data = await response.json();
@@ -21,6 +21,16 @@ $(function() {
         return path.split('/').slice(-1)[0];
     }
 
+    function toggleButtonClass($button, mark) {
+        if (mark) {
+            $button.removeClass('btn-warning')
+            .addClass('btn-success').text('Complete');
+        } else {
+            $button.removeClass('btn-success')
+            .addClass('btn-warning').text('Inomplete');
+        }
+    }
+
     $("button.mark-complete").on("click", event => {
         let $this = $(event.currentTarget);
         let modal = $this.parents('a')[0];
@@ -28,19 +38,16 @@ $(function() {
         let action = $(modal).data('answer');
         let survey_module = getModule();
 
-        if (status !== 'True') {
-            markComplete(survey_module, action).then(res => {
-                if (res.success) {
-                    $this.removeClass('btn-warning').addClass('btn-success');
-                    $this.text('Complete');
-                } else {
-                    throw res.error;
-                }
-            }).catch(err => {
-                alert('Ooops! Something went wrong: ' + err)
-            });
+        toggleAction(survey_module, action).then(res => {
+            if (res.success) {
+                toggleButtonClass($this, res.complete);
+            } else {
+                throw res.error;
+            }
+        }).catch(err => {
+            alert('Ooops! Something went wrong: ' + err)
+        });
 
-        }
 
         event.stopPropagation();
         event.preventDefault();

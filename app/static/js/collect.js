@@ -20,4 +20,16 @@ $(function() {
 
     });
 
+    // Makes None of the above options exclusive
+    $(':checkbox[value$=".none"]').change((e) => {
+        let $checkbox = $(e.currentTarget);
+        let $siblings = $checkbox.parent('li').prevAll().find('input');
+
+        if ($checkbox.prop("checked")) {
+            $siblings.prop("checked", false).attr("disabled", true);
+        } else {
+            $siblings.attr("disabled", false);
+
+        }
+    });
 });
