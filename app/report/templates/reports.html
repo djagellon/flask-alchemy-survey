@@ -18,7 +18,7 @@
                 <a href="#" class="short-modal-link list-group-item" data-toggle="modal" data-answer="{{action}}" data-target="#shortModal">
                     <div class="row">
                         <div class="col-md-11">
-                            <h5>{{ answer.actions[action]['text'] }}</h5>
+                            <h5>{{ answer.actions[action]['plan'] }}</h5>
                         </div>
                         <div class="col-md-1">
                             <button 
@@ -34,6 +34,7 @@
                             <span class="label label-default">{{action}}</span>
                             {% if answer.weight %}
                             <span class="label label-default">weight:{{answer.weight}}</span>
+                            <span class="label label-default">score:{{answer.score}}</span>
                             {% endif %}
                             {% if answer.notes %}
                             <h6>notes: <em>{{answer.notes}}</em><h6>
