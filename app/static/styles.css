@@ -2,6 +2,30 @@ a:focus {
   outline: none;
 }
 
+.clickable .glyphicon
+{
+    background: rgba(0, 0, 0, 0.15);
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px
+}
+
+.clickable[aria-expanded=true] .more_collapsed {
+   display: none;
+}
+.clickable[aria-expanded=false] .more_expanded {
+   display: none;
+}
+
+/*
+.clickable[aria-expanded=true] .expand_footer_text:before {
+  content: "Less Info";
+}
+
+.clickable[aria-expanded=false] .expand_footer_text:before {
+  content: "More Info";
+}
+*/
 .btn-link:focus,
 .btn-link:active {
   outline: none;
@@ -39,3 +63,4 @@ form textarea {
   border-color: lightgrey;
   border-width: thin;
 }
+

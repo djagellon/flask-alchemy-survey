@@ -1,90 +1,84 @@
 {% extends 'home.html' %}
 
+{% macro admin_data(answer, action) %}
+  <div class="admin report-footer">
+    <span class="label label-default">{{answer.datalabel}}</span>
+    <span class="label label-default">{{action}}</span>
+
+    {% if answer.weight %}
+      <span class="label label-default">weight:{{answer.weight}}</span>
+      <span class="label label-default">score:{{answer.score}}</span>
+    {% endif %}
+
+    {% if answer.notes %}
+      <h6>notes: <em>{{answer.notes}}</em></h6>
+    {% endif %}
+  </div>
+{% endmacro %}
+
 {% block header %}
-    <h1>{% block title %}Report{% endblock %}</h1>
+  <h1>{% block title %}Report{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-
 <h3> Report for Module: {{module}}</h3> 
 
-<div class="list-group">
-    {% for answer in data %}
+<div class="panel-group" id="accordion" aria-multiselectable="true">
+  {% for answer in data %}
+    {% if answer.actions %}
+      {% for action in answer.actions %}
+        {% set status = answer.actions[action]['complete']%}
+        {% set collapse_label = action.replace('.', '_') %}
+        <div class="panel panel-default" role="tab" data-answer="{{action}}" id="heading_{{collapse_label}}">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-11">
+                <h5>{{ answer.actions[action]['plan'] }}</h5>
+              </div>
+              <div class="col-md-1">
+                <button 
+                  data-status="{{ status }}" 
+                  class="mark-complete btn btn-xs {{'btn-success' if status else 'btn-warning'}}">
+                  {{ 'Complete' if status else 'Incomplete' }}
+                </button>
+              </div>
+            </div>
+          </div>
 
-        {% if answer.actions %}
+          <div id="collapse_{{collapse_label}}" role="tabpanel" aria-labeledby="heading_{{collapse_label}}" class="panel-collapse collapse">
+            <div class="panel-body">
+              <div class="short_output">
+                {{answer['short']}}
+              </div>
+              <div class="long_output">
+                <br/>
+                {{answer['long']}}
+              </div>
+            </div>
+          </div>
 
-            {% for action in answer.actions %}
-                {% set status = answer.actions[action]['complete']%}
-                <a href="#" class="short-modal-link list-group-item" data-toggle="modal" data-answer="{{action}}" data-target="#shortModal">
-                    <div class="row">
-                        <div class="col-md-11">
-                            <h5>{{ answer.actions[action]['plan'] }}</h5>
-                        </div>
-                        <div class="col-md-1">
-                            <button 
-                                data-status="{{ status }}" 
-                                class="mark-complete btn btn-xs {{'btn-success' if status else 'btn-warning'}}">
-                                {{ 'Complete' if status else 'Incomplete' }}
-                            </button>
-                        </div>
-                    </div>
-                    {% if current_user.is_admin and current_user.admin_controls_on %}
-                        <div class="admin report-footer">
-                            <span class="label label-default">{{answer.datalabel}}</span>
-                            <span class="label label-default">{{action}}</span>
-                            {% if answer.weight %}
-                            <span class="label label-default">weight:{{answer.weight}}</span>
-                            <span class="label label-default">score:{{answer.score}}</span>
-                            {% endif %}
-                            {% if answer.notes %}
-                            <h6>notes: <em>{{answer.notes}}</em><h6>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </a>
-            {% endfor%}
 
-        {% elif answer.action %}
-            <a href="#" class="list-group-item">
-                {{answer.action | replace("\n", "<br/>") | safe}}
-            </a>
-        {% endif %}
+          <div class="panel-footer clickable" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{collapse_label}}" aria-expanded="false" aria-controls="collapse_{{collapse_label}}">
+          {% if current_user.is_admin and current_user.admin_controls_on %}
+            {{admin_data(answer, action)}}
+          {% endif %}
 
-    {% endfor %}
-</div>
-
-<div class="panel-footer">
-    <span class="pull-right">
-        {% if current_user.is_admin and current_user.admin_controls_on %}
-        <a type="button" class="btn btn-danger" href="{{ url_for('report.delete_survey', module=module) }}">Clear Answers</a>
-        {% endif %}
-    </span>
-    <span class="text-right">
-        Total Score: 
-    </span>
-</div>
-
-<div id="shortModal" class="modal fade short-answer-lg" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-md" role="document">
-    <div class="modal-content">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="exampleModalLabel">More Info</h4>
+            <span class="expand_footer_text pull-right"> 
+                <i class="more_collapsed glyphicon glyphicon-plus"></i>
+                <i class="more_expanded glyphicon glyphicon-minus"></i>
+            </span>
+                <div class="clearfix"></div>
+          </div>
         </div>
-        <div class="modal-body">
-        </div>
-        <div class="modal-footer">
-            <a href="#" role="link" type="submit" target="_blank" class="btn btn-link more-link pull-left">More Details</a>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-    </div>
-  </div>
+      {% endfor%}
+    {% endif %}
+  {% endfor %}
 </div>
 
 {% endblock %}
 
 {% block extra_js %}
-  {{super()}}
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
-    <script type="text/javascript" src={{url_for("static", filename="js/report.js")}}></script>
+    {{super()}}
+        <script type="text/javascript" src="https://cdn.datatables.net/v/bs/dt-1.10.18/datatables.min.js"></script>
+        <script type="text/javascript" src={{url_for("static", filename="js/report.js")}}></script>
 {% endblock %}
