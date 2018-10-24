@@ -37,19 +37,17 @@ def get_answer_for_module(module):
 
     survey = user.surveys.filter_by(module=module).first()
 
-    with open('surveys/%s_output.json' % module) as f:
+    with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
     def get_outputs_for_answer(answer):
         outdata = outputs.get(answer, outputs.get(data['label'], None))
 
         # check if answers have been completed
-        if outdata:
+        if outdata and outdata['actions']:
             for action in outdata['actions']:
-                outdata['actions'][action] = {
-                    'text': outdata['actions'][action],
-                    'complete': check_action_completeness(module, action)
-                }
+                complete = check_action_completeness(module, action)
+                outdata['actions'][action]['complete'] = complete
 
         return outdata
 
@@ -66,7 +64,7 @@ def get_answer_for_module(module):
                 answers.append(outdata)
 
     #sort data by weight
-    answers.sort(key=lambda x: int(x['weight'] or 0), reverse=True)
+    answers.sort(key=lambda x: int(x.get('weight', 0) if x else 0), reverse=True)
 
     return jsonify(answers)
 
