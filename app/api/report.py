@@ -44,7 +44,7 @@ def get_answer_for_module(module):
         outdata = outputs.get(answer, outputs.get(data['label'], None))
 
         # check if answers have been completed
-        if outdata:
+        if outdata and outdata['actions']:
             for action in outdata['actions']:
                 complete = check_action_completeness(module, action)
                 outdata['actions'][action]['complete'] = complete
@@ -64,7 +64,7 @@ def get_answer_for_module(module):
                 answers.append(outdata)
 
     #sort data by weight
-    answers.sort(key=lambda x: int(x.get('weight', 0)), reverse=True)
+    answers.sort(key=lambda x: int(x.get('weight', 0) if x else 0), reverse=True)
 
     return jsonify(answers)
 

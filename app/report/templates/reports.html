@@ -47,17 +47,21 @@
 
           <div id="collapse_{{collapse_label}}" role="tabpanel" aria-labeledby="heading_{{collapse_label}}" class="panel-collapse collapse">
             <div class="panel-body">
-              <div class="short_output">
-                {{answer['short']}}
-              </div>
-              <div class="long_output">
-                <br/>
-                {{answer['long']}}
-              </div>
+              {% if answer['short'] %}
+                <div class="short_output">
+                  {{answer['short']}}
+                </div>
+              {% endif %}
+              {% if answer['long'] %}
+                <div class="long_output">
+                  <br/>
+                  {{answer['long']}}
+                </div>
+              {% endif %}
             </div>
           </div>
 
-
+          {% if answer['short'] or answer['long'] %}
           <div class="panel-footer clickable" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{collapse_label}}" aria-expanded="false" aria-controls="collapse_{{collapse_label}}">
           {% if current_user.is_admin and current_user.admin_controls_on %}
             {{admin_data(answer, action)}}
@@ -69,6 +73,8 @@
             </span>
                 <div class="clearfix"></div>
           </div>
+          {% endif %}
+
         </div>
       {% endfor%}
     {% endif %}

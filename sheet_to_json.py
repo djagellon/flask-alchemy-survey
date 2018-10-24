@@ -133,14 +133,15 @@ def action_to_objects(actions, howto):
     action_object = {}
     howto_object = {}
 
-    for how in howto:
-        #build the how to object
-        if len(how) > 1:
-            label, text = (how[1:])
-            howto_object[label] = text
+    # for how in howto:
+    #     #build the how to object
+    #     import pdb;pdb.set_trace()
+    #     if len(how) > 1:
+    #         label, text = (how[1:])
+    #         howto_object[label] = text
 
     for action in actions:
-        if action[0]:
+        if action and action[0]:
             datalabel = action[0]
             actions_per_datalabel[datalabel] = []
         else:
