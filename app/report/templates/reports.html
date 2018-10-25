@@ -49,13 +49,13 @@
             <div class="panel-body">
               {% if answer['short'] %}
                 <div class="short_output">
-                  {{answer['short']}}
+                  {{answer['short']} | nl2br}
                 </div>
               {% endif %}
-              {% if answer['long'] %}
+              {% if answer['long']%}
                 <div class="long_output">
                   <br/>
-                  {{answer['long']}}
+                  {{answer['long'] | nl2br}}
                 </div>
               {% endif %}
             </div>

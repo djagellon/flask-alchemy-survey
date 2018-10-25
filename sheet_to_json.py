@@ -172,7 +172,7 @@ def values_to_objects(values, header):
         data[value[0]] = {} 
 
         for i in itertools.izip_longest(header[1:], value[1:], ''):
-            data[value[0]][i[0]] = i[1] 
+            data[value[0]][i[0]] = i[1]
 
     # import pdb;pdb.set_trace()
     return data
