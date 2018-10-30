@@ -8,7 +8,7 @@ from flask_user import current_user, roles_required
 import json
 from datetime import datetime
 
-ALL_REPORTS = set(["asset", "governance", "risk", "remediation"])
+ALL_REPORTS = ["asset", "governance", "risk", "remediation"]
 
 def get_user():
 
@@ -21,11 +21,13 @@ def get_user():
 def get_user_reports(user_id=None):
 
     user = get_user()
+    data = {}
 
-    completed = [r.module for r in user.surveys.all() if r.completed_on] 
-    pending = ALL_REPORTS - set(completed)
+    surveys = [(r.module, r.completed_on) for r in user.surveys.all()]
 
-    return jsonify({'complete': completed, 'pending': list(pending)})
+    pending = [(a, None) for a in ALL_REPORTS if a not in [s[0] for s in surveys]]
+
+    return jsonify(surveys + pending)
 
 @bp.route('/reports/<module>/', methods=['GET'])
 @token_auth.login_required

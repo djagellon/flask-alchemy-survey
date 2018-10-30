@@ -33,7 +33,7 @@
           <div class="panel-body">
             <div class="row">
               <div class="col-md-11">
-                {{ answer.actions[action]['plan'] }}
+                {{ answer.actions[action]['plan'] | nl2br }}
               </div>
               <div class="col-md-1">
                 <button 
@@ -49,7 +49,7 @@
             <div class="panel-body">
               {% if answer['short'] %}
                 <div class="short_output">
-                  {{answer['short']} | nl2br}
+                  {{answer['short'] | nl2br}}
                 </div>
               {% endif %}
               {% if answer['long']%}
