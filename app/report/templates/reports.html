@@ -1,7 +1,7 @@
 {% extends 'home.html' %}
 
 {% macro admin_data(answer, action) %}
-  <div class="admin report-footer">
+  <span class="admin report-footer">
     <span class="label label-default">{{answer.datalabel}}</span>
     <span class="label label-default">{{action}}</span>
 
@@ -13,7 +13,7 @@
     {% if answer.notes %}
       <h6>notes: <em>{{answer.notes}}</em></h6>
     {% endif %}
-  </div>
+  </span>
 {% endmacro %}
 
 {% block header %}
@@ -21,7 +21,9 @@
 {% endblock %}
 
 {% block content %}
-<h3> Report for Module: {{module}}</h3> 
+  <h3> {{module.capitalize()}} - Overall Score 
+    <span class="label label-info">{{score}}</span>
+  </h3> 
 
 <div class="panel-group" id="accordion" aria-multiselectable="true">
   {% for answer in data %}
@@ -92,15 +94,23 @@
 
           {% if answer['short'] or answer['long'] %}
           <div class="panel-footer clickable" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{collapse_label}}" aria-expanded="false" aria-controls="collapse_{{collapse_label}}">
-          {% if current_user.is_admin and current_user.admin_controls_on %}
-            {{admin_data(answer, action)}}
-          {% endif %}
 
-            <span class="expand_footer_text pull-right"> 
-                <i class="more_collapsed glyphicon glyphicon-plus"></i>
-                <i class="more_expanded glyphicon glyphicon-minus"></i>
-            </span>
-                <div class="clearfix"></div>
+            <div class="row">
+              <div class="col-md-11">
+                {% if current_user.is_admin and current_user.admin_controls_on %}
+                  {{admin_data(answer, action)}}
+                {% endif %}
+              </div>
+
+              <div class="col-md-1 text-center">
+                <span class="expand_footer_text pull-right"> 
+                    <i class="more_collapsed glyphicon glyphicon-plus"></i>
+                    <i class="more_expanded glyphicon glyphicon-minus"></i>
+                </span>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+
           </div>
           {% endif %}
 

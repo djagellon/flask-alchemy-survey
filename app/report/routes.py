@@ -35,7 +35,8 @@ def show_report(module):
     # retains order of objects
     obj = json.loads(data.data, object_pairs_hook=collections.OrderedDict)
 
-    return render_template('reports.html', title="report", data=obj, module=module)
+    return render_template('reports.html', title="report", 
+        data=obj['answers'], module=module, score=obj['score'])
 
 @bp.route('/report/delete', defaults={'module': None})
 @bp.route('/report/delete/<module>')
