@@ -6,6 +6,8 @@ from app.api import report, users
 
 from app.models import SurveyModel
 
+import json, collections
+
 @bp.route('/report/all')
 @roles_required('admin')
 def show_all_reports():
@@ -30,7 +32,10 @@ def show_full_output(module, answer):
 def show_report(module):
     data = report.get_answer_for_module(module)
 
-    return render_template('reports.html', title="report", data=data.json, module=module)
+    # retains order of objects
+    obj = json.loads(data.data, object_pairs_hook=collections.OrderedDict)
+
+    return render_template('reports.html', title="report", data=obj, module=module)
 
 @bp.route('/report/delete', defaults={'module': None})
 @bp.route('/report/delete/<module>')
