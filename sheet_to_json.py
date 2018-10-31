@@ -22,6 +22,7 @@ SHEET_HEADERS = ["type", "label", "condition", "title", "answers", "datalabel"]
 # Columns B-E
 OUTPUT_RANGE = 'B2:E'
 OUTPUT_HEADERS = ["datalabel", "notes", "short", "long"]
+HOWTO_HEADERS = ["datalabel", "actionlabel", "plan", "how"]
 
 # Columns C-G
 WEIGHT_HEADERS = ["datalabel", "score", "weight", "balance"]
@@ -133,12 +134,12 @@ def action_to_objects(actions, howto):
     action_object = {}
     howto_object = {}
 
-    # for how in howto:
-    #     #build the how to object
-    #     import pdb;pdb.set_trace()
-    #     if len(how) > 1:
-    #         label, text = (how[1:])
-    #         howto_object[label] = text
+    for how in howto:
+        #build the how to object
+        how_obj = dict(zip(HOWTO_HEADERS, how)) 
+        action_how = how_obj.get('how', None)
+        if len(how) == 4:
+            howto_object[how_obj['actionlabel']] = action_how
 
     for action in actions:
         if action and action[0]:
