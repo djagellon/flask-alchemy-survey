@@ -1,7 +1,7 @@
 {% extends 'home.html' %}
 
 {% macro admin_data(answer, action) %}
-  <div class="admin report-footer">
+  <span class="admin report-footer">
     <span class="label label-default">{{answer.datalabel}}</span>
     <span class="label label-default">{{action}}</span>
 
@@ -13,7 +13,7 @@
     {% if answer.notes %}
       <h6>notes: <em>{{answer.notes}}</em></h6>
     {% endif %}
-  </div>
+  </span>
 {% endmacro %}
 
 {% block header %}
@@ -21,7 +21,9 @@
 {% endblock %}
 
 {% block content %}
-<h3> Report for Module: {{module}}</h3> 
+  <h3> {{module.capitalize()}} - Overall Score 
+    <span class="label label-info">{{score}}</span>
+  </h3> 
 
 <div class="panel-group" id="accordion" aria-multiselectable="true">
   {% for answer in data %}
@@ -35,12 +37,41 @@
               <div class="col-md-11">
                 {{ answer.actions[action]['plan'] | nl2br }}
               </div>
-              <div class="col-md-1">
-                <button 
-                  data-status="{{ status }}" 
-                  class="mark-complete btn btn-xs {{'btn-success' if status else 'btn-warning'}}">
-                  {{ 'Complete' if status else 'Incomplete' }}
-                </button>
+              <div class="col-md-1 text-center">
+                <div class="row">
+                  <button 
+                    data-status="{{ status }}" 
+                    class="mark-complete btn btn-xs {{'btn-success' if status else 'btn-warning'}}">
+                    {{ 'Complete' if status else 'Incomplete' }}
+                  </button>
+                </div>
+                {% if answer.actions[action]['how'] %}
+                  <div class="row">
+
+                    <a href="#" class="short-modal-link" data-toggle="modal" data-target=".howModal_{{collapse_label}}">How</a>
+                  </div>
+
+                  <div class="modal fade howModal_{{collapse_label}}" tabindex="-1" role="dialog" aria-labelledby="howModal">
+                    <div class="modal-dialog modal-lg" role="document">
+                      <div class="modal-content text-left">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
+                            <h4 class="modal-title">How To</h4>
+                        </div>
+
+                        <div class="modal-body">
+                          {{ answer.actions[action]['how'] | nl2br }}
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div> 
+                      </div>
+                    </div>
+                  </div> 
+
+                {% endif %}
               </div>
             </div>
           </div>
@@ -63,15 +94,23 @@
 
           {% if answer['short'] or answer['long'] %}
           <div class="panel-footer clickable" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{{collapse_label}}" aria-expanded="false" aria-controls="collapse_{{collapse_label}}">
-          {% if current_user.is_admin and current_user.admin_controls_on %}
-            {{admin_data(answer, action)}}
-          {% endif %}
 
-            <span class="expand_footer_text pull-right"> 
-                <i class="more_collapsed glyphicon glyphicon-plus"></i>
-                <i class="more_expanded glyphicon glyphicon-minus"></i>
-            </span>
-                <div class="clearfix"></div>
+            <div class="row">
+              <div class="col-md-11">
+                {% if current_user.is_admin and current_user.admin_controls_on %}
+                  {{admin_data(answer, action)}}
+                {% endif %}
+              </div>
+
+              <div class="col-md-1 text-center">
+                <span class="expand_footer_text pull-right"> 
+                    <i class="more_collapsed glyphicon glyphicon-plus"></i>
+                    <i class="more_expanded glyphicon glyphicon-minus"></i>
+                </span>
+              </div>
+              <div class="clearfix"></div>
+            </div>
+
           </div>
           {% endif %}
 

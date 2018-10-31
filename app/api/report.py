@@ -23,17 +23,44 @@ def get_user_reports(user_id=None):
     user = get_user()
     data = {}
 
-    surveys = [(r.module, r.completed_on) for r in user.surveys.all()]
+    surveys = [(r.module, r.completed_on, get_score_for_module(r.module).json['score']) for r in user.surveys.all()]
 
-    pending = [(a, None) for a in ALL_REPORTS if a not in [s[0] for s in surveys]]
+    pending = [(a, None, 0) for a in ALL_REPORTS if a not in [s[0] for s in surveys]]
 
     return jsonify(surveys + pending)
+
+@bp.route('/reports/score/<module>/', methods=['GET'])
+@token_auth.login_required
+def get_score_for_module(module):
+    score = 0
+    user = get_user()
+
+    survey = user.surveys.filter_by(module=module).first()
+
+    with open('surveys/outputs.json') as f:
+        outputs = json.load(f)
+
+    if survey and survey.questions:
+
+        for question in survey.questions.all():
+            data = question.to_dict()
+
+            question_answers = data['answer']
+
+            for answer in question_answers:
+                outdata = outputs.get(answer, outputs.get(data['label'], None))
+
+                if outdata['score']:
+                    score = score + float(outdata['score'])
+
+    return jsonify({'score':score})
 
 @bp.route('/reports/<module>/', methods=['GET'])
 @token_auth.login_required
 def get_answer_for_module(module):
 
     answers = []
+    score = 0
 
     user = get_user()
 
@@ -63,12 +90,17 @@ def get_answer_for_module(module):
 
             for answer in question_answers:
                 outdata = get_outputs_for_answer(answer)
+
+                if outdata['score']:
+                    print "ADDING SCORE FROM %s: %s" % (answer, outdata['score'])
+                    score = score + float(outdata['score'])
+
                 answers.append(outdata)
 
     #sort data by weight
-    answers.sort(key=lambda x: int(x.get('weight', 0) if x else 0), reverse=True)
+    answers.sort(key=lambda x: int(x.get('weight', 0) if x['weight'] else 0), reverse=True)
 
-    return jsonify(answers)
+    return jsonify({'answers': answers, 'score':score})
 
 
 def check_action_completeness(module, action):
