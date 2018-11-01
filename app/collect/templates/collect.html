@@ -5,9 +5,17 @@
 {% endblock %}
 
 {% block content %}
+Progress
+<div class="progress">
+    <div class="progress-bar" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="10" style="width: {{progress}}%;">
+        <span class="sr-only">{{progress}}% Complete</span>
+    </div>
+</div>
+
 <div class="panel panel-default">
-        {% block questions %}
-        {% endblock %}
+
+    {% block questions %}
+    {% endblock %}
 </div> 
 {% endblock %}
 

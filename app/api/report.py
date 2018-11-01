@@ -50,7 +50,7 @@ def get_score_for_module(module):
             for answer in question_answers:
                 outdata = outputs.get(answer, outputs.get(data['label'], None))
 
-                if outdata['score']:
+                if outdata.get('score'):
                     score = score + float(outdata['score'])
 
     return jsonify({'score':score})
@@ -91,14 +91,13 @@ def get_answer_for_module(module):
             for answer in question_answers:
                 outdata = get_outputs_for_answer(answer)
 
-                if outdata['score']:
-                    print "ADDING SCORE FROM %s: %s" % (answer, outdata['score'])
+                if outdata.get('score'):
                     score = score + float(outdata['score'])
 
                 answers.append(outdata)
 
     #sort data by weight
-    answers.sort(key=lambda x: int(x.get('weight', 0) if x['weight'] else 0), reverse=True)
+    answers.sort(key=lambda x: int(x.get('weight', 0) if x.get('weight') else 0), reverse=True)
 
     return jsonify({'answers': answers, 'score':score})
 

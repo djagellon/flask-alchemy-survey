@@ -47,6 +47,7 @@ class Survey(object):
         self.survey_length = len(self.questions)
         self.survey_db = self.get_surveyModel(module)
         self.current_survey = {}
+        self.progress = 1
 
     def get_surveyModel(self, module):
         # search users db for the survey
@@ -116,6 +117,8 @@ class Survey(object):
             self.page_index = page 
         else:
             self.page_index += 1
+
+        self.progress = (float(self.page_index) / float(self.survey_length)) * 100
 
     def is_complete(self):
         if self.page_index >= self.survey_length:
