@@ -97,7 +97,7 @@ def get_answer_for_module(module):
                 answers.append(outdata)
 
     #sort data by weight
-    answers.sort(key=lambda x: int(x.get('weight', 0) if x.get('weight') else 0), reverse=True)
+    answers.sort(key=lambda x: int(x.get('weight', 0) if x and x.get('weight') else 0), reverse=True)
 
     return jsonify({'answers': answers, 'score':score})
 
