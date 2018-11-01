@@ -54,8 +54,6 @@ def collect():
 
         form = survey.get_page()
 
-    print "PROGRESS: %s" % survey.progress
-
     return render_template('survey.html', form=form, progress=survey.progress)
 
 @bp.route('/collect/<module>/end')
