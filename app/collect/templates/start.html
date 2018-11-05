@@ -13,7 +13,7 @@
         <p>Click Start to begin</p>
 
     </div>
-    <input class="continue btn btn-default pull-right" type="button" value="Start" onclick="window.location.href='{{ url_for('survey.collect') }}'">
+    <a type="button" class="continue btn btn-default pull-right" href="{{ url_for('survey.collect', module=module)}}">Start</a>
 
 {% endblock %}
 

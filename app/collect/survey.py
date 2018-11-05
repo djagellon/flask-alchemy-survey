@@ -40,41 +40,37 @@ class MultiField(SelectMultipleField):
 class Survey(object):
 
     def __init__(self, module):
-        self.questions = None
-        self.page_index = 0
         self.module = module
+        self.page_index = 0
+        self.progress = 1
         self.questions = self.load_survey()
         self.survey_length = len(self.questions)
         self.survey_db = self.get_surveyModel(module)
-        self.current_survey = {}
-        self.progress = 1
 
     def get_surveyModel(self, module):
         # search users db for the survey
         # create one if does not exist
-
         user = User.query.get_or_404(current_user.id)
-        survey = user.surveys.filter_by(module=module).first()
+        survey = user.surveys.filter_by(module=module).one_or_none()
 
-        if not survey:
-            survey = SurveyModel(module=module, user=user)
+        if survey:
+            # update page index and progress based on questions answered
+            self.page_index = len(survey.questions.all())
+            self.progress = (float(self.page_index) / float(self.survey_length)) * 100
+            log.info("SURVEY IN PROGRESSS at page: %s" % self.page_index)
+        else:
+            survey = SurveyModel(module=module, user=user, started_on=datetime.now())
             db.session.add(survey)
             db.session.commit()
-
-        # TODO: throw error or display user message. 
-        #   For now this will add multiple survey answers
-        #else:
-        #     throwError
 
         return survey
 
     def load_survey(self):
         try:
-            log.debug("LOADING DATA FROM: %s" % self.module)
             with open('surveys/%s.json' % self.module) as f:
                 return json.load(f)
-        except IOError:
-            log.debug("MODULE NOT FOUND: %s" % self.module)
+        except IOError as error:
+            log.error("Survey File Not Found %s" % self.module)
             raise
 
     def show_question(self, cond):
@@ -84,16 +80,19 @@ class Survey(object):
             return True
 
         cond_question, cond_answer = cond.split('.')
-        answers = self.current_survey.get(cond_question, []) 
 
-        try:
-            show = cond in answers
-        except IndexError:
-            # question was not found for some reason
-            log.warn("Question not found when checking condition: [%s]." % cond)
-            return True
+        # We need to query the db session and not the surveymodel
+        # to prevent lazyload errors
+        survey = db.session.query(SurveyModel).filter_by(id=self.survey_db.id).one() 
 
-        log.info("CONDITION: %s for QUESTION: %s ANSWERS: %s" % (show, cond, answers) )
+        #TODO: user one_or_none() when we ensured survey can only be taken once
+        question = survey.questions.filter_by(label=cond_question).first()
+
+        if question:
+            show = cond in question.answer
+
+        log.info("CONDITION: %s for ANSWERS: %s" % (show, cond))
+
         return show
 
     def get_questions(self):
@@ -102,7 +101,6 @@ class Survey(object):
     def add_answers(self, question, answer):
 
         data = QuestionModel(label=question, answer=answer, survey=self.survey_db)
-        self.current_survey[data.label] = data.answer        
 
         db.session.add(data)
         db.session.commit()
