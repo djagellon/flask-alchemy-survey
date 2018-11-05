@@ -41,10 +41,10 @@ def collect(module=None):
         if module:
             return start(module)
         else:
-            flash('Survey already completed. Please select another module.', 'warning')
+            flash('Invalid progress on survey.', 'error')
             return redirect(url_for('main.dashboard'))
 
-    if survey and survey.survey_db.completed_on:
+    if survey and survey.progress >= 100:
         flash('Survey already completed. Please select another module.', 'warning')
         return redirect(url_for('main.dashboard'))
 
