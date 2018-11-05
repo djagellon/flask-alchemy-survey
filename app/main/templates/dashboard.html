@@ -5,31 +5,27 @@
 {% endblock %}
 
 {% macro dashboard_data(data, prev) %}
-{% set module = data[0] %}
-{% set completed = data[1] %}
-{% set score = data[2] %}
-{% set prev_completed = (prev and prev[1]) %}
+{% set module = data.module %}
+{% set prev_completed = (prev and prev.completed) %}
 
-{% if completed %}
-
+{% if data.completed %}
+    
     <li class="list-group-item list-group-item-success">
         <div class="row">
             <div class="col-md-11">
                 {{ module.capitalize() }} 
                 <br/>
                 <small>
-                    Completed on: {{completed | strftime }}
+                    Completed on: {{data.completed | strftime }}
                 </small>
                 <br/>
                 <small>
-                    Score: {{ score }}
+                    Score: {{ data.score }}
                 </small>
             </div>
 
             <div class="col-md-1">
-                <button class="btn btn-default btn-xs pull-right" onclick="window.location.href='{{ url_for('report.show_report', module=module ) }}'">
-                    View Report
-                </button>
+                <a type="button" class="btn btn-default btn-xs pull-right" href="{{ url_for('report.show_report', module=module)}}">View Report</a>
             </div>
         </div>
     </li>
@@ -39,12 +35,21 @@
         <div class="row">
             <div class="col-md-11">
                 {{ module.capitalize() }} 
+
+                {% if not data.completed and data.started%}
+                    <br/>
+                    <small>
+                        Started on: {{data.started | strftime }}
+                    </small>
+                {% endif %}
             </div>
 
             <div class="col-md-1">
-                <button class="btn btn-success btn-xs pull-right" onclick="window.location.href='{{ url_for('survey.start', module=module ) }}'">
-                    Start
-                </button>
+                {% if not data.completed and data.started %}
+                    <a type="button" class="btn btn-success btn-xs pull-right" href="{{ url_for('survey.collect', module=module)}}">Continue</a>
+                {% else %}
+                    <a type="button" class="btn btn-success btn-xs pull-right" href="{{ url_for('survey.start', module=module)}}">Start</a>
+                {% endif %}
             </div>
         </div>
     </li>

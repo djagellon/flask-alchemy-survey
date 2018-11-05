@@ -1,6 +1,7 @@
 from app.collect import bp
 from app.collect.survey import Survey
-from flask import render_template, redirect, url_for
+from app.api import report
+from flask import render_template, redirect, url_for, flash
 from flask_user import login_required, current_user
 
 import logging as log
@@ -19,12 +20,33 @@ def start(module):
     global gv
     gv['survey'] = Survey(module)
 
-    return render_template('start.html')
+    can_start_module = report.can_start(module)
 
-@bp.route('/collect/', methods=['GET', 'POST'])
-def collect():
+    if not can_start_module:
+        flash('You must complete the previous module before starting %s' % module, 'warning')
+        return redirect(url_for('main.dashboard'))
+
+    if gv['survey'].progress > 1:
+        # Survey already started, skip start page
+        return redirect(url_for('survey.collect', module=module))
+
+    return render_template('start.html', module=module)
+
+@bp.route('/collect/<module>/', methods=['GET', 'POST'])
+def collect(module=None):
     global gv
-    survey = gv['survey']
+    survey = gv.get('survey', None)
+
+    if not survey or survey.module != module :
+        if module:
+            return start(module)
+        else:
+            flash('Survey already completed. Please select another module.', 'warning')
+            return redirect(url_for('main.dashboard'))
+
+    if survey and survey.survey_db.completed_on:
+        flash('Survey already completed. Please select another module.', 'warning')
+        return redirect(url_for('main.dashboard'))
 
     form = survey.get_page()
 

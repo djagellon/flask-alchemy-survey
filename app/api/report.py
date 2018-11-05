@@ -16,18 +16,46 @@ def get_user():
 
     return User.query.get_or_404(user.id)
 
+@bp.route('/reports/canstart/<module>')
+@token_auth.login_required
+def can_start(module):
+    # A module can only be taken if the previous module is completed
+    user = get_user()
+
+    try:
+        module_index = ALL_REPORTS.index(module)
+    except ValueError:
+        #Allow test modules
+        return True
+
+    if module_index == 0:
+        return True
+
+    prev_module = ALL_REPORTS[module_index - 1]
+    prev_survey = user.surveys.filter_by(module=prev_module).first()
+
+    return prev_survey and prev_survey.completed_on
+
 @bp.route('/reports/user/', defaults={'user_id': None}, methods=['GET'])
 @token_auth.login_required
 def get_user_reports(user_id=None):
 
     user = get_user()
-    data = {}
+    data = []
 
-    surveys = [(r.module, r.completed_on, get_score_for_module(r.module).json['score']) for r in user.surveys.all()]
+    surveys = [r.to_dict() for r in user.surveys.all()]
 
-    pending = [(a, None, 0) for a in ALL_REPORTS if a not in [s[0] for s in surveys]]
+    for s in surveys:
+        data.append({
+            'module': s.get('module'),
+            'started': s.get('started_on'),
+            'completed': s.get('completed_on'),
+            'score': get_score_for_module(s['module']).json['score']
+        })
 
-    return jsonify(surveys + pending)
+    pending = [{'module': a} for a in ALL_REPORTS if a not in [s['module'] for s in surveys]]
+
+    return jsonify(data + pending)
 
 @bp.route('/reports/score/<module>/', methods=['GET'])
 @token_auth.login_required

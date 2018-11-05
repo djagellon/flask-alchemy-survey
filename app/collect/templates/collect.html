@@ -20,5 +20,6 @@ Progress
 {% endblock %}
 
 {% block extra_js %}
+    {{super()}}
     <script type="text/javascript" src={{url_for("static", filename="js/collect.js")}}></script>
 {% endblock %}

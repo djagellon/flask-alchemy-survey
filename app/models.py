@@ -112,6 +112,7 @@ class SurveyModel(db.Model):
     module = db.Column(db.String(55))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     questions = db.relationship('QuestionModel', backref='survey', lazy='dynamic')
+    started_on = db.Column(db.DateTime())
     completed_on = db.Column(db.DateTime())
 
     def to_dict(self):
@@ -122,6 +123,7 @@ class SurveyModel(db.Model):
                     module = self.module,
                     user = self.user_id,
                     questions = questions,
+                    started_on = self.started_on,
                     completed_on = self.completed_on)
 
 class QuestionModel(db.Model):
