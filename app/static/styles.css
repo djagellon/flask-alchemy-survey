@@ -58,3 +58,27 @@ form textarea {
     margin-top: 2em;
 }
 
+.dashboard-grade {
+  padding: .3em .6em;
+  font-size: 90%;
+}
+
+.score-A {
+  background-color: #2ECC40;
+}
+
+.score-B {
+  background-color: #3D9970;
+}
+
+.score-C {
+  background-color: #FFDC00;
+}
+
+.score-D {
+  background-color: #FF851B;
+}
+
+.score-F {
+  background-color: #FF4136;
+}

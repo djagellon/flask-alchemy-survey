@@ -46,11 +46,14 @@ def get_user_reports(user_id=None):
     surveys = [r.to_dict() for r in user.surveys.all()]
 
     for s in surveys:
+        score_data = get_score_for_module(s['module']).json
+
         data.append({
             'module': s.get('module'),
             'started': s.get('started_on'),
             'completed': s.get('completed_on'),
-            'score': get_score_for_module(s['module']).json['score']
+            'score': score_data['score'],
+            'grade': score_data['grade']
         })
 
     pending = [{'module': a} for a in ALL_REPORTS if a not in [s['module'] for s in surveys]]
@@ -81,7 +84,21 @@ def get_score_for_module(module):
                 if outdata and outdata.get('score'):
                     score = score + float(outdata['score'])
 
-    return jsonify({'score':score})
+    grade = get_score_grade(score)
+
+    return jsonify({'score':score, 'grade': grade})
+
+def get_score_grade(score):
+    if score < 60:
+        return 'F'
+    elif 60 <= score < 70:
+        return 'D'
+    elif 70 <= score < 80:
+        return 'C'
+    elif 80 <= score < 90:
+        return 'B'
+    else:
+        return 'A'
 
 @bp.route('/reports/<module>/', methods=['GET'])
 @token_auth.login_required
