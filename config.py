@@ -24,7 +24,4 @@ class Config(object):
     MAIL_USE_TLS = False
     MAIL_USERNAME = os.environ['OUTGOING_EMAIL']
     MAIL_PASSWORD = os.environ['OUTGOING_PASS']
-
-    ADMINS = [
-        'register@verastrategic.com', 'dagellon@gmail.com'
-    ]
+    ADMINS = os.environ['ADMIN_EMAILS']
