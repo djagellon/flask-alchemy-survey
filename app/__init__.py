@@ -68,9 +68,9 @@ def create_app():
                 secure = ()
 
             mail_handler = SMTPHandler(
-                mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-                fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-                toaddrs=app.config['ADMINS'], subject='Vera Strategic Failure',
+                mailhost=(app.config['MAIL_SERVER'], app.config['INCOMING_MAIL_PORT']),
+                fromaddr=app.config['USER_EMAIL_SENDER_EMAIL'],
+                toaddrs=app.config['ADMINS'], subject='Vera Strategic Error',
                 credentials=auth, secure=secure)
 
             mail_handler.setLevel(logging.ERROR)

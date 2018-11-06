@@ -19,11 +19,12 @@ class Config(object):
 
     MAIL_SERVER = 'mail.verastrategic.com'
     MAIL_PORT = 465
+    INCOMING_MAIL_PORT = 587
     MAIL_USE_SSL = True
     MAIL_USE_TLS = False
     MAIL_USERNAME = os.environ['OUTGOING_EMAIL']
     MAIL_PASSWORD = os.environ['OUTGOING_PASS']
 
     ADMINS = [
-        '"Vera Admin" <dj@verastrategic.com>',
+        'register@verastrategic.com', 'dagellon@gmail.com'
     ]
