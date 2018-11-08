@@ -12,7 +12,7 @@ pp = pprint.PrettyPrinter(indent=2)
 
 # Setup the Sheets API
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
-SPREADSHEET_ID = '14qDT52ycqNx-XHp0x_IzSMwTRg81v2ED0Ae0wgwBlYI'
+SPREADSHEET_ID = '1H7SdrzSY2PbW6n4bIs2ZjctXwZnN2kvU7hD7x64d1Pw'
 
 DEFAULT_RANGE = 'A2:O'
 

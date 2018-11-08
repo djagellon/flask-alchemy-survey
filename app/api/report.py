@@ -156,10 +156,12 @@ def check_action_completeness(module, action):
     user = get_user()
     survey = user.surveys.filter_by(module=module).first()
     question = survey.questions.filter_by(label=q_label).first()
-    answer = question.actions.filter_by(label=action).first()
 
-    if answer:
-        return answer.completed
+    if question:
+        answer = question.actions.filter_by(label=action).first()
+
+        if answer:
+            return answer.completed
 
     return False
 
