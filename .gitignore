@@ -1,6 +1,6 @@
 veraenv/
 venv/
-*surveys/
+#surveys/
 logs/
 *.pyc
 .flaskenv

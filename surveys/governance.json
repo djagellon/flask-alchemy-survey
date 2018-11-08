@@ -1,0 +1,83 @@
+[
+  [
+    {
+      "answers": [
+        {
+          "label": "isgQ1.it", 
+          "text": "Information Technology"
+        }, 
+        {
+          "label": "isgQ1.rm", 
+          "text": "Risk Managment"
+        }, 
+        {
+          "label": "isgQ1.em", 
+          "text": "Executive Management"
+        }, 
+        {
+          "label": "isgQ1.f", 
+          "text": "Finance"
+        }, 
+        {
+          "label": "isgQ1.other", 
+          "open": true, 
+          "text": "Other - Please list"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isgQ1", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isgQ1a.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isgQ1a.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isgQ1a", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isgQ2.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isgQ2.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isgQ2", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isgQ2a", 
+          "text": "[open]"
+        }
+      ], 
+      "condition": "isgQ2.y", 
+      "label": "isgQ2a", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "integer"
+    }
+  ]
+]

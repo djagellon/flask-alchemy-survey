@@ -1,0 +1,181 @@
+[
+  [
+    {
+      "answers": [
+        {
+          "label": "isrmQ1.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isrmQ1.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isrmQ1", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isrmQ2.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isrmQ2.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "isrmQ1.y", 
+      "label": "isrmQ2", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isrmQ3.y", 
+          "text": "yes"
+        }, 
+        {
+          "label": "isrmQ3.n", 
+          "text": "no"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isrmQ3", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isrmQ3a.hi", 
+          "text": "\nHealth Insurance Portability and Accountability Act (HIPAA)"
+        }, 
+        {
+          "label": "isrmQ3a.fi", 
+          "text": "Federal Information Security Management Act (FISMA)"
+        }, 
+        {
+          "label": "isrmQ3a.gl", 
+          "text": "Gramm Leach Bliley Act (GLBA)"
+        }, 
+        {
+          "label": "isrmQ3a.fe", 
+          "text": "Family Education Rights and Privacy Act (FERPA)"
+        }, 
+        {
+          "label": "isrmQ3a.pc", 
+          "text": "Payment Card Industry Data Security Standards (PCI-DSS)"
+        }, 
+        {
+          "label": "isrmQ3a.so", 
+          "text": "Student Online Personal Information Protection Act (SOPIPA)"
+        }, 
+        {
+          "label": "isrmQ3a.ci", 
+          "text": "Children's Internet Protection Act (CIPA)"
+        }, 
+        {
+          "label": "isrmQ3a.gd", 
+          "text": "General Data Protection Regulation (GDPR)"
+        }, 
+        {
+          "label": "isrmQ3a.cj", 
+          "text": "Criminal Justice Information Service (CJIS)"
+        }, 
+        {
+          "label": "isrmQ3a.ft", 
+          "text": "Federal Tax Information (FTI) through IRS Publication 1075"
+        }, 
+        {
+          "label": "isrmQ3a.other", 
+          "open": true, 
+          "text": "Other"
+        }
+      ], 
+      "condition": "isrmQ3.y", 
+      "label": "isrmQ3a", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "multi"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isrmQ4.th", 
+          "text": "Threats"
+        }, 
+        {
+          "label": "isrmQ4.ec", 
+          "text": "Existing Controls"
+        }, 
+        {
+          "label": "isrmQ4.v", 
+          "text": "Vulnerabilities"
+        }, 
+        {
+          "label": "isrmQ4.ci", 
+          "text": "Consequences/Impact"
+        }
+      ], 
+      "condition": "q2.y", 
+      "label": "isrmQ4", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "multi"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isrmQ4a.sa", 
+          "text": "Self Assessment"
+        }, 
+        {
+          "label": "isrmQ4a.mq", 
+          "text": "Monthly, Quarterly, Yearly external assessment through managed servcies or consultancy"
+        }, 
+        {
+          "label": "isrmQ4a.rt", 
+          "text": "Real-time vulnerability assessment through network scanning and probing software, appliance, etc"
+        }, 
+        {
+          "label": "isrmQ4a.o", 
+          "text": "Other"
+        }
+      ], 
+      "condition": "isrmQ4.v", 
+      "label": "isrmQ4a", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "multi"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isrmQ4b.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isrmQ4b.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "isrmQ4.v", 
+      "label": "isrmQ4b", 
+      "title": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ]
+]

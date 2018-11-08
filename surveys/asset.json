@@ -1,0 +1,154 @@
+[
+  [
+    {
+      "answers": [
+        {
+          "label": "isamQ1.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isamQ1.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isamQ1", 
+      "title": "Asset - isamQ1 Question Text", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isamQ1a.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isamQ1a.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "isamQ1.y", 
+      "label": "isamQ1a", 
+      "title": "Asset - isamQ1a Question Text", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isamQ1b.ch", 
+          "text": "Upon Infrastructure/Application Change"
+        }, 
+        {
+          "label": "isamQ1b.mo", 
+          "text": "Monthly"
+        }, 
+        {
+          "label": "isamQ1b.q", 
+          "text": "Quarterly"
+        }, 
+        {
+          "label": "isamQ1b.yr", 
+          "text": "Yearly"
+        }, 
+        {
+          "label": "isamQ1b.au", 
+          "text": "Automated"
+        }
+      ], 
+      "condition": "isamQ1a.y", 
+      "label": "isamQ1b", 
+      "title": "Asset - isamQ1b Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isamQ1c.y", 
+          "text": "Yes"
+        }, 
+        {
+          "label": "isamQ1c.n", 
+          "text": "No"
+        }
+      ], 
+      "condition": "isamQ1.y", 
+      "label": "isamQ1c", 
+      "title": "Asset - isamQc Question Text", 
+      "type": "radio"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isamQ2.low", 
+          "text": "1"
+        }, 
+        {
+          "label": "isamQ2.low", 
+          "text": "2"
+        }, 
+        {
+          "label": "isamQ2.low", 
+          "text": "3"
+        }, 
+        {
+          "label": "isamQ2.low", 
+          "text": "4"
+        }, 
+        {
+          "label": "isamQ2.mid", 
+          "text": "5"
+        }, 
+        {
+          "label": "isamQ2.mid", 
+          "text": "6"
+        }, 
+        {
+          "label": "isamQ2.mid", 
+          "text": "7"
+        }, 
+        {
+          "label": "isamQ2.high", 
+          "text": "8"
+        }, 
+        {
+          "label": "isamQ2.high", 
+          "text": "9"
+        }, 
+        {
+          "label": "isamQ2.high", 
+          "text": "10"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isamQ2", 
+      "title": "Asset - isamQ2 Question Text", 
+      "type": "select"
+    }
+  ], 
+  [
+    {
+      "answers": [
+        {
+          "label": "isamQ3.y", 
+          "text": "yes"
+        }, 
+        {
+          "label": "isamQ3.n", 
+          "text": "no"
+        }
+      ], 
+      "condition": "all", 
+      "label": "isamQ3", 
+      "title": "Asset - isamQ3 Question Text", 
+      "type": "radio"
+    }
+  ]
+]
