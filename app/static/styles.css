@@ -10,10 +10,17 @@ a:focus {
     border-radius: 4px
 }
 
-.clickable[aria-expanded=true] .more_collapsed {
+.show-why[aria-expanded=true] .why_collapsed {
    display: none;
 }
-.clickable[aria-expanded=false] .more_expanded {
+.show-why[aria-expanded=false] .why_expanded {
+   display: none;
+}
+
+.show-how[aria-expanded=true] .how_collapsed {
+   display: none;
+}
+.show-how[aria-expanded=false] .how_expanded {
    display: none;
 }
 
