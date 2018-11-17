@@ -13,7 +13,6 @@ pp = pprint.PrettyPrinter(indent=2)
 # Setup the Sheets API
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 SPREADSHEET_ID = '14qDT52ycqNx-XHp0x_IzSMwTRg81v2ED0Ae0wgwBlYI'
-
 DEFAULT_RANGE = 'A2:O'
 
 # Columns A-F
@@ -22,7 +21,9 @@ SHEET_HEADERS = ["type", "label", "condition", "title", "answers", "datalabel"]
 # Columns B-E
 OUTPUT_RANGE = 'B2:E'
 OUTPUT_HEADERS = ["datalabel", "notes", "short", "long"]
-HOWTO_HEADERS = ["datalabel", "actionlabel", "plan", "how"]
+HOWTO_RANGE = 'B2:F'
+HOWTO_HEADERS = ["datalabel", "actionlabel", "plan", "how", "video"]
+
 
 # Columns C-G
 WEIGHT_HEADERS = ["datalabel", "score", "weight", "balance"]
@@ -70,14 +71,10 @@ def generate_outputs():
     output_values = output_data.get('values', [])
     output_object = values_to_objects(output_values, OUTPUT_HEADERS)
 
-    howto_sheet = 'HowTo!%s' % (OUTPUT_RANGE)
+    howto_sheet = 'HowTo!%s' % (HOWTO_RANGE)
     howto_data = get_sheet_from_google(howto_sheet)
     howto_values = howto_data.get('values', [])
-
-    action_sheet = 'ActionPlan!%s' % (OUTPUT_RANGE)
-    action_data = get_sheet_from_google(action_sheet)
-    action_values = action_data.get('values', [])
-    action_object, action_lookup = action_to_objects(action_values, howto_values)
+    action_object, action_lookup = action_to_objects(howto_values)
 
     for k, v in output_object.iteritems():
         weight = weight_object.get(k, None)
@@ -123,23 +120,13 @@ def generate_module(module):
     survey_file = open("surveys/%s.json" % module, "w")
     survey_file.write(json.dumps(survey, indent=2, sort_keys=True))
 
-def action_to_objects(actions, howto):
-    ''' return list of actions by datalabel and
-    write action.json lookup file
-    TODO: probably weights
+def action_to_objects(actions):
+    ''' return list of actions by datalabel
     '''
 
     datalabel = ''
     actions_per_datalabel = {}
     action_object = {}
-    howto_object = {}
-
-    for how in howto:
-        #build the how to object
-        how_obj = dict(zip(HOWTO_HEADERS, how)) 
-        action_how = how_obj.get('how', None)
-        if len(how) == 4:
-            howto_object[how_obj['actionlabel']] = action_how
 
     for action in actions:
         if action and action[0]:
@@ -152,12 +139,13 @@ def action_to_objects(actions, howto):
 
         if len(action) < 2:
             actions_per_datalabel[datalabel] = []
-        else: 
+        elif action[1]: 
             actionlabel = action[1]
             actions_per_datalabel[datalabel].append(actionlabel)
             action_object[datalabel][actionlabel] = {
                 'plan': action[2],
-                'how': howto_object.get(actionlabel, None)
+                'how': action[3] if len(action) > 3 else None,
+                'video': action[4] if len(action) > 4 else None
             }
 
     return actions_per_datalabel, action_object
@@ -175,7 +163,6 @@ def values_to_objects(values, header):
         for i in itertools.izip_longest(header[1:], value[1:], ''):
             data[value[0]][i[0]] = i[1]
 
-    # import pdb;pdb.set_trace()
     return data
 
 def expand_answers(row):
