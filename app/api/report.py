@@ -68,25 +68,44 @@ def get_score_for_module(module):
 
     survey = user.surveys.filter_by(module=module).first()
 
+    if not survey:
+        return
+
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
-    if survey and survey.questions:
+    for question in survey.questions.all():
+        answer_list = get_formatted_answers(question)
 
-        for question in survey.questions.all():
-            data = question.to_dict()
+        for label, checked in answer_list:
+            outdata = outputs.get(label, None)
 
-            question_answers = data['answer']
-
-            for answer in question_answers:
-                outdata = outputs.get(answer, outputs.get(data['label'], None))
-
-                if outdata and outdata.get('score'):
-                    score = score + float(outdata['score'])
+            if int(checked) and outdata and outdata.get('score'):
+                score = score + float(outdata['score'])
 
     grade = get_score_grade(score)
 
     return jsonify({'score':score, 'grade': grade})
+
+def get_formatted_answers(question):
+    """ Return list of format question answers
+    Answers should be in typleformat: (label, answer)
+    """
+
+    answers = []
+    question_answers = question.answer
+    question_type = question.question_type
+
+    for answer in question_answers:
+        #TODO python 3 can unpack this with "*"
+        if question_type == 'MultiField':
+            label, checked = answer
+        else:
+            label, checked = answer, 1
+
+        answers.append((label, checked))
+
+    return answers
 
 def get_score_grade(score):
     if score < 60:
@@ -111,35 +130,43 @@ def get_answer_for_module(module):
 
     survey = user.surveys.filter_by(module=module).first()
 
+    if not survey:
+        return
+
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
-    def get_outputs_for_answer(answer):
-        outdata = outputs.get(answer, outputs.get(data['label'], None))
+    def get_outputs_for_answer(label, checked):
+        """ Returns the output and action items based on questions answerd.
+        Multiselect question types can have outputs based on unchecked answers.
+        """
+        outdata = outputs.get(label, None)
 
-        # check if answers have been completed
-        if outdata and outdata['actions']:
-            for action in outdata['actions']:
-                complete = check_action_completeness(module, action)
-                outdata['actions'][action]['complete'] = complete
+        if not outdata:
+            return
+
+        for action in outdata.get('actions') or []:
+            # No output returned if 'not' in action label and answer checked
+            if 'not' in action.split('.') and int(checked):
+                outdata['actions'] = None
+                continue
+
+            # check if answers have been completed
+            complete = check_action_completeness(module, action)
+            outdata['actions'][action]['complete'] = complete
 
         return outdata
 
-    if survey and survey.questions:
-        # Solution lookup for each answer
+    for question in survey.questions.all():
+        answer_list = get_formatted_answers(question)
 
-        for question in survey.questions.all():
-            data = question.to_dict()
+        for label, checked in answer_list:
+            outdata = get_outputs_for_answer(label, checked)
 
-            question_answers = data['answer']
+            if int(checked) and outdata and outdata.get('score'):
+                score = score + float(outdata['score'])
 
-            for answer in question_answers:
-                outdata = get_outputs_for_answer(answer)
-
-                if outdata and outdata.get('score'):
-                    score = score + float(outdata['score'])
-
-                answers.append(outdata)
+            answers.append(outdata)
 
     #sort data by weight
     answers.sort(key=lambda x: int(x.get('weight', 0) if x and x.get('weight') else 0), reverse=True)
