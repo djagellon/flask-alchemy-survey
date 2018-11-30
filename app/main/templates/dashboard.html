@@ -4,85 +4,110 @@
     <h1>{% block title %}Dashboard{% endblock %}</h1>
 {% endblock %}
 
+{% block breadcrumb %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="font-size: 0.75rem; font-weight: bold;">
+      <li class="breadcrumb-item active text-muted" aria-current="page">
+        <a class="text-muted">DASHBOARD</a> 
+      </li>
+    </ol>
+  </nav>
+{% endblock%}
+
 {% macro dashboard_data(data, prev) %}
 {% set module = data.module %}
 {% set prev_completed = (prev and prev.completed) %}
 
-{% if data.completed %}
-    
-    <li class="list-group-item list-group-item-success">
-        <div class="row">
-            <div class="col-md-11">
+    {% if data.completed %}
+    <li class="list-group-item my-1 p-1">
+        <div class="d-flex">
+            <i class="align-self-center m-3 fas fa-check text-success"></i> 
+
+            <div class="flex-grow-1 w-100">
+                <div class="font-weight-bold">
                 {{ module.capitalize() }} 
-                <br/>
+                </div>
                 <small>
                     Completed on: {{data.completed | strftime }}
                 </small>
-                <br/>
-                <small>
+                <small class="px-2">
                     Score:
-                    <span class="dashboard-grade label label-default score-{{data.grade}}">{{data.score}}</span>
+                    <span class="grade-badge badge score-{{data.grade}}">{{data.score}}</span>
                 </small>
             </div>
 
-            <div class="col-md-1">
-                <a type="button" class="btn btn-default btn-xs pull-right" href="{{ url_for('report.show_report', module=module)}}">View Report</a>
+            <div class="dashboard-action flex-shrink-1 align-self-center">
+                <a class="btn btn-default btn-sm text-muted" href="{{ url_for('report.show_report', module=module)}}">
+                    <i class="fas fa-clipboard-list"> View Report </i>
+                </a>
             </div>
         </div>
     </li>
 
-{% elif prev_completed or module == 'asset' %}
-    <li class="list-group-item list-group-item-info">
-        <div class="row">
-            <div class="col-md-11">
-                {{ module.capitalize() }} 
+    {% elif prev_completed or module == 'asset' %}
+    <li class="list-group-item my-1 p-1">
+        <div class="d-flex">
+            <i class="align-self-center m-3 fas fa-check text-muted"></i> 
 
-                {% if not data.completed and data.started%}
-                    <br/>
+            <div class="flex-grow-1 w-100">
+                <div class="font-weight-bold">
+                    {{ module.capitalize() }} 
+                </div>
+
                     <small>
+                    {% if not data.completed and data.started %}
                         Started on: {{data.started | strftime }}
+                    {% else %}
+                        Click start to begin
+                    {% endif %}
                     </small>
-                {% endif %}
             </div>
 
-            <div class="col-md-1">
+            <div class="dashboard-action flex-shrink-1 text-center align-self-center">
                 {% if not data.completed and data.started %}
-                    <a type="button" class="btn btn-success btn-xs pull-right" href="{{ url_for('survey.collect', module=module)}}">Continue</a>
+                    <a type="button" class="btn btn-primary btn-sm" href="{{ url_for('survey.collect', module=module)}}">Continue</a>
                 {% else %}
-                    <a type="button" class="btn btn-success btn-xs pull-right" href="{{ url_for('survey.start', module=module)}}">Start</a>
+                    <a type="button" class="btn btn-primary btn-sm" href="{{ url_for('survey.start', module=module)}}">Start</a>
                 {% endif %}
             </div>
         </div>
     </li>
-{% else %}
-    <li class="disabled list-group-item list-group-item-default">
-        {{ module.capitalize() }} 
-        <br/>
-        <small>
-        Please complete the previous survey to unlock.
-        </small>
+
+    {% else %}
+    <li class="list-group-item bg-light my-1 p-1">
+        <div class="d-flex">
+            <i class="align-self-center m-3 fas fa-check text-muted"></i> 
+
+            <div class="flex-grow-1 w-100">
+                <div class="font-weight-bold">
+                    {{ module.capitalize() }} 
+                </div>
+                <small>
+                    Complete the previous module to unlock.
+                </small>
+            </div>
+        </div>
     </li>
-{% endif %}
+    {% endif %}
 
 {% endmacro %}
 
 {% block content %}
-    <div class="panel panel-primary panel-sm">
-        <div class="panel-heading">Your Surveys</div>
-            <ul class="list-group">
-            {% for module in data %}
-                {{ dashboard_data(module, loop.previtem) }}
-            {% endfor %}
-            </ul>
-    </div>
+
+    <ul class="list-group">
+        {% for module in data %}
+            {{ dashboard_data(module, loop.previtem) }}
+        {% endfor %}
+    </ul>
 
     {% if current_user.is_admin and current_user.admin_controls_on %}
-    <div class="panel panel-default panel-sm">
-        <div class="panel-heading">ADMIN</div>
-        <li class="list-group-item list-group-item">
-            <a href="{{ url_for('report.show_all_reports', module=module) }}">View ALL Data</a>
-            <a type="button" class="btn btn-xs btn-danger pull-right" href="{{ url_for('report.delete_survey') }}">Clear My Answers</a>
-        </li>
+    <div class="card my-5 w-50">
+        <div class="card-body">
+            <h5 class="card-title">Admin Options</h5>
+            <a class="card-link" href="{{ url_for('report.show_all_reports', module=module) }}">View ALL Data</a>
+            <a class="card-link" href="{{ url_for('report.delete_survey') }}">Clear My Answers</a>
+        </div>
     </div>
     {% endif %}
+
 {% endblock %}

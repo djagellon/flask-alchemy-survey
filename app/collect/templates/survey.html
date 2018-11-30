@@ -33,7 +33,7 @@
 
   {% if form %}
       <form action="" method="post">
-        <div class="panel-body">
+        <div class="card-body">
           {{ form.hidden_tag() }}
           <br/>
           {% for q in form %}
@@ -43,7 +43,7 @@
             {% elif q.type != "CSRFTokenField" and q.type != "SubmitField" %}
 
               {% if current_user.is_admin and current_user.admin_controls_on %}
-                <span class="label label-primary">{{q.name}}</span>
+                <span class="badge badge-primary">{{q.name}}</span>
               {% endif %}
 
               <div class="question">
@@ -55,7 +55,9 @@
 
           {% endfor %}
         </div>
-        <input class="continue btn btn-default pull-right" type="submit" value="Continue">
+        <div class="card-footer text-right text-muted">
+          <input class="continue btn btn-default pull-right" type="submit" value="Continue">
+        </div>
       </form>
   {% endif %}
 

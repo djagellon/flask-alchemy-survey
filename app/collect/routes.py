@@ -54,19 +54,12 @@ def collect(module=None):
         survey.increment_page()
 
         for question, answer in form.data.items():
-            question_type = getattr(form[question], 'type')
 
             if answer and question not in IGNORE_FIELDS:
-
-                if question_type == 'MultiField':
-                    #Store answers as tuples based on checked or not
-                    choices = [c[0] for c in form[question].choices]
-                    answer = [(choice, str(int(choice in answer))) for choice in choices] 
-
                 if not type(answer) is list:
                     answer = [answer]
 
-                survey.add_answers(question, answer, question_type)
+                survey.add_answers(question, answer)
 
         if survey.is_complete():
             return redirect(url_for('survey.end_survey', module=survey.module))

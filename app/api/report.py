@@ -68,44 +68,25 @@ def get_score_for_module(module):
 
     survey = user.surveys.filter_by(module=module).first()
 
-    if not survey:
-        return
-
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
-    for question in survey.questions.all():
-        answer_list = get_formatted_answers(question)
+    if survey and survey.questions:
 
-        for label, checked in answer_list:
-            outdata = outputs.get(label, None)
+        for question in survey.questions.all():
+            data = question.to_dict()
 
-            if int(checked) and outdata and outdata.get('score'):
-                score = score + float(outdata['score'])
+            question_answers = data['answer']
+
+            for answer in question_answers:
+                outdata = outputs.get(answer, outputs.get(data['label'], None))
+
+                if outdata and outdata.get('score'):
+                    score = score + float(outdata['score'])
 
     grade = get_score_grade(score)
 
     return jsonify({'score':score, 'grade': grade})
-
-def get_formatted_answers(question):
-    """ Return list of format question answers
-    Answers should be in typleformat: (label, answer)
-    """
-
-    answers = []
-    question_answers = question.answer
-    question_type = question.question_type
-
-    for answer in question_answers:
-        #TODO python 3 can unpack this with "*"
-        if question_type == 'MultiField':
-            label, checked = answer
-        else:
-            label, checked = answer, 1
-
-        answers.append((label, checked))
-
-    return answers
 
 def get_score_grade(score):
     if score < 60:
@@ -130,43 +111,41 @@ def get_answer_for_module(module):
 
     survey = user.surveys.filter_by(module=module).first()
 
-    if not survey:
-        return
-
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
-    def get_outputs_for_answer(label, checked):
-        """ Returns the output and action items based on questions answerd.
-        Multiselect question types can have outputs based on unchecked answers.
-        """
-        outdata = outputs.get(label, None)
+    def get_outputs_for_answer(answer):
+        outdata = outputs.get(answer, outputs.get(data['label'], None))
 
-        if not outdata:
-            return
+        # check if answers have been completed
+        if outdata and outdata['actions']:
+            for action in outdata['actions']:
+                complete = check_action_completeness(module, action)
+                outdata['actions'][action]['complete'] = complete
 
-        for action in outdata.get('actions') or []:
-            # No output returned if 'not' in action label and answer checked
-            if 'not' in action.split('.') and int(checked):
-                outdata['actions'] = None
-                continue
-
-            # check if answers have been completed
-            complete = check_action_completeness(module, action)
-            outdata['actions'][action]['complete'] = complete
+        # Don't return output data until requested
+        if outdata.get('short') or outdata.get('long'):
+            outdata['has_why'] = True
+            del outdata['short']
+            del outdata['long']
 
         return outdata
 
-    for question in survey.questions.all():
-        answer_list = get_formatted_answers(question)
+    if survey and survey.questions:
+        # Solution lookup for each answer
 
-        for label, checked in answer_list:
-            outdata = get_outputs_for_answer(label, checked)
+        for question in survey.questions.all():
+            data = question.to_dict()
 
-            if int(checked) and outdata and outdata.get('score'):
-                score = score + float(outdata['score'])
+            question_answers = data['answer']
 
-            answers.append(outdata)
+            for answer in question_answers:
+                outdata = get_outputs_for_answer(answer)
+
+                if outdata and outdata.get('score'):
+                    score = score + float(outdata['score'])
+
+                answers.append(outdata)
 
     #sort data by weight
     answers.sort(key=lambda x: int(x.get('weight', 0) if x and x.get('weight') else 0), reverse=True)
@@ -183,10 +162,12 @@ def check_action_completeness(module, action):
     user = get_user()
     survey = user.surveys.filter_by(module=module).first()
     question = survey.questions.filter_by(label=q_label).first()
-    answer = question.actions.filter_by(label=action).first()
 
-    if answer:
-        return answer.completed
+    if question:
+        answer = question.actions.filter_by(label=action).first()
+
+        if answer:
+            return answer.completed
 
     return False
 
@@ -226,20 +207,24 @@ def toggle_task(module, answer):
 
     return jsonify({'success': True, 'complete': action.completed})
 
-@bp.route('/reports/<type>/<module>/<label>', methods=['GET'])
+@bp.route('/reports/<output_type>/<action_label>', methods=['GET'])
 @token_auth.login_required
-def get_output(type, module, label):
+def get_output(output_type, action_label):
 
-    label = get_answer_label(label)
+    answer_label = get_answer_label(action_label)
 
-    with open('surveys/%s_output.json' % module) as f:
+    with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
-    try:
-        output = outputs[label][type]
-    except KeyError:
-        print "NO OUTPUT FOUND FOR %s" % label
-        output = 'No further information available'
+    if output_type == 'why':
+        output = outputs[answer_label].get('short', '')
+        output += outputs[answer_label].get('long', '')
+    else:    
+        try:
+            output = outputs[answer_label]['actions'][action_label][output_type]
+        except KeyError:
+            print "NO %s OUTPUT FOUND FOR %s" % (output_type, action_label)
+            output = 'No further information available'
 
     return jsonify(output)
 
