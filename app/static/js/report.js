@@ -8,8 +8,8 @@ $(function() {
         return data;
     }
 
-    async function getOutput(module, type, label) {
-        let output_url = `/api/reports/${type}/${label}`;
+    async function getOutput(module, type, label, action) {
+        let output_url = `/api/reports/${type}/${label}/${action}`;
         let response = await fetch(output_url);
         let data = await response.json();
 
@@ -60,6 +60,7 @@ $(function() {
     $("#outputModal").on("show.bs.modal", event => {
         let $target = $(event.relatedTarget);
         let action = $target.data('action');
+        let answer = $target.data('answer');
         let type = $target.data('type');
         let $this = $(event.currentTarget)
         let $modal_body = $this.find('.modal-body');
@@ -67,7 +68,7 @@ $(function() {
 
         $this.find('.action_title').text(type);
 
-        getOutput(survey_module, type, action).then(output => {
+        getOutput(survey_module, type, answer, action).then(output => {
             $modal_body.text(output);
         });
     });

@@ -2,6 +2,7 @@
 
 {% macro admin_data(answer, action) %}
   <span class="admin report-footer">
+    <span class="badge badge-info">{{answer.answer_label}}</span>
     <span class="badge badge-info">{{answer.datalabel}}</span>
     <span class="badge badge-info">{{action}}</span>
 
@@ -69,6 +70,7 @@
                 data-target="#outputModal" 
                 data-toggle="modal"
                 data-type="why"
+                data-answer={{answer.answer_label}}
                 data-action="{{action}}">
                   Show Me Why
               </a>
@@ -80,6 +82,7 @@
                 data-target="#outputModal" 
                 data-toggle="modal"
                 data-type="how"
+                data-answer={{answer.answer_label}}
                 data-action="{{action}}">
                   Show Me How
               </a>

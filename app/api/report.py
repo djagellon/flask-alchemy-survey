@@ -145,8 +145,11 @@ def get_answer_for_module(module):
             for answer in question_answers:
                 outdata = get_outputs_for_answer(answer)
 
-                if outdata and outdata.get('score'):
-                    score = score + float(outdata['score'])
+                if outdata:
+                    outdata['answer_label'] = answer
+
+                    if outdata.get('score'):
+                        score = score + float(outdata['score'])
 
                 answers.append(outdata)
 
@@ -174,11 +177,6 @@ def check_action_completeness(module, action):
 
     return False
 
-
-def get_answer_label(label):
-    # labels can come in with qlabel.answer.action
-    # we only care about the qlabel.answer
-    return '.'.join(label.split('.')[:2])
 
 @bp.route('/reports/complete/<module>/<answer>', methods=['GET', 'POST'])
 @token_auth.login_required
@@ -210,11 +208,9 @@ def toggle_task(module, answer):
 
     return jsonify({'success': True, 'complete': action.completed})
 
-@bp.route('/reports/<output_type>/<action_label>', methods=['GET'])
+@bp.route('/reports/<output_type>/<answer_label>/<action_label>', methods=['GET'])
 @token_auth.login_required
-def get_output(output_type, action_label):
-
-    answer_label = get_answer_label(action_label)
+def get_output(output_type, answer_label, action_label):
 
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
@@ -227,7 +223,7 @@ def get_output(output_type, action_label):
     else:    
         try:
             output = answers['actions'][action_label][output_type]
-        except KeyError:
+        except TypeError:
             print "NO %s OUTPUT FOUND FOR %s" % (output_type, action_label)
             output = 'No further information available'
 
