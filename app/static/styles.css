@@ -62,6 +62,10 @@ ul {
   white-space: pre-wrap;
 }
 
+#outputModal .show_spinner {
+  white-space: normal;
+}
+
 /* Collect */
 .progress {
   margin-bottom: 1rem;

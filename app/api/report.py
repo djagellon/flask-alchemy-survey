@@ -117,8 +117,11 @@ def get_answer_for_module(module):
     def get_outputs_for_answer(answer):
         outdata = outputs.get(answer, outputs.get(data['label'], None))
 
+        if not outdata:
+            return
+
         # check if answers have been completed
-        if outdata and outdata['actions']:
+        if outdata['actions']:
             for action in outdata['actions']:
                 complete = check_action_completeness(module, action)
                 outdata['actions'][action]['complete'] = complete
@@ -216,12 +219,14 @@ def get_output(output_type, action_label):
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
+    answers = outputs.get(answer_label)
+
     if output_type == 'why':
-        output = outputs[answer_label].get('short', '')
-        output += outputs[answer_label].get('long', '')
+        output = answers.get('short') or ''
+        output += '\n\n' + (answers.get('long') or '')
     else:    
         try:
-            output = outputs[answer_label]['actions'][action_label][output_type]
+            output = answers['actions'][action_label][output_type]
         except KeyError:
             print "NO %s OUTPUT FOUND FOR %s" % (output_type, action_label)
             output = 'No further information available'
