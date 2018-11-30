@@ -6,14 +6,16 @@
 
 {% block questions %}
 
-    <div class="panel-body">
+    <div class="card-body">
         <h2> Welcome, please answer the following questions about...</h2>
         <br/>
         <br/>
         <p>Click Start to begin</p>
 
     </div>
-    <a type="button" class="continue btn btn-default pull-right" href="{{ url_for('survey.collect', module=module)}}">Start</a>
+    <div class="card-footer text-right text-muted">
+        <a type="button" class="continue btn btn-default pull-right" href="{{ url_for('survey.collect', module=module)}}">Start</a>
+    </div>
 
 {% endblock %}
 

@@ -2,12 +2,12 @@
 
 {% macro admin_data(answer, action) %}
   <span class="admin report-footer">
-    <span class="label label-default">{{answer.datalabel}}</span>
-    <span class="label label-default">{{action}}</span>
+    <span class="badge badge-info">{{answer.datalabel}}</span>
+    <span class="badge badge-info">{{action}}</span>
 
     {% if answer.weight %}
-      <span class="label label-default">weight:{{answer.weight}}</span>
-      <span class="label label-default">score:{{answer.score}}</span>
+      <span class="badge badge-info">weight:{{answer.weight}}</span>
+      <span class="badge badge-info">score:{{answer.score}}</span>
     {% endif %}
 
     {% if answer.notes %}
@@ -20,122 +20,81 @@
   <h1>{% block title %}Report{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}
-  <h3> {{module.capitalize()}} - Overall Score 
-    <span class="label label-default score-{{grade}}">{{score}}</span>
-  </h3> 
+{% block breadcrumb %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="font-size: 0.75rem; font-weight: bold;">
+      <li class="breadcrumb-item" aria-current="page">
+        <a class="" href="{{ url_for('main.index')}}">DASHBOARD</a> 
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        REPORT 
+      </li>
+    </ol>
+  </nav>
+{% endblock%}
 
-<div class="panel-group" id="accordion" aria-multiselectable="true">
+{% block content %}
+  <h6 class="border-top pt-4 pb-2"> 
+    Here is what you can do ...
+
+    <span class="float-right">
+      Overall {{module.capitalize()}} Score 
+      <span class="grade-badge badge score-{{grade}}">{{score}}</span>
+    </span>
+  </h6> 
+
   {% for answer in data %}
     {% if answer.actions %}
       {% for action in answer.actions %}
         {% set status = answer.actions[action]['complete']%}
         {% set collapse_label = action.replace('.', '_') %}
-        <div class="panel panel-default" role="tab" data-answer="{{action}}" id="heading_{{collapse_label}}">
-          <div class="panel-body">
-            <div class="row">
-              <div class="col-md-11">
-                {{ answer.actions[action]['plan'] | nl2br }}
-              </div>
-              <div class="col-md-1 text-center">
-                <div class="row">
-                  <button 
-                    data-status="{{ status }}" 
-                    class="mark-complete btn btn-xs {{'btn-success' if status else 'btn-warning'}}">
-                    {{ 'Complete' if status else 'Incomplete' }}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="collapse_{{collapse_label}}" role="tabpanel" aria-labeledby="heading_{{collapse_label}}" class="panel-collapse collapse">
-            <div class="panel-body">
-              {% if answer['short'] %}
-                <div class="short_output">
-                  {{answer['short'] | nl2br}}
-                </div>
-              {% endif %}
-              {% if answer['long']%}
-                <div class="long_output">
-                  <br/>
-                  {{answer['long'] | nl2br}}
-                </div>
-              {% endif %}
-            </div>
-          </div>
-
-          <div id="collapse_how{{collapse_label}}" role="tabpanel" aria-labeledby="heading_{{collapse_label}}" class="panel-collapse collapse">
-            <div class="panel-body">
-              {% if answer.actions[action]['how'] %}
-                <div class="how_output">
-                  {{ answer.actions[action]['how'] | nl2br }}
-                </div>
-              {% endif %}
-            </div>
-          </div>
-
-          <div id="collapse_video{{collapse_label}}" role="tabpanel" aria-labeledby="heading_{{collapse_label}}" class="panel-collapse collapse">
-            <div class="panel-body">
-              <div class="embed-responsive embed-responsive-4by3">
-                <embed class="embed-responsive-item" src="{{ answer.actions[action]['video'] }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></embed>
-              </div> 
-            </div>
-          </div>
-
-          <div class="panel-footer">
-            <span class="expand_footer_text"> 
-              {% if answer['short'] or answer['long'] %}
-
-                <button 
-                  class="show-why btn btn-primary btn-xs"
-                  data-toggle="collapse" 
-                  data-parent="#accordion" 
-                  href="#collapse_{{collapse_label}}" 
-                  aria-expanded="false" 
-                  aria-controls="collapse_{{collapse_label}}">
-                  <span class="why_collapsed">
-                    Show Me Why
+        <div class="card my-3" data-answer="{{action}}">
+          <div class="card-body">
+            <div class="card-subtitle text-right">
+              <a href="#" data-status="{{ status }}" data-answer="{{ action }}" class="mark-complete text-muted btn">
+                  <i class="{{'text-success fas fa-check-square' if status else 'far fa-square'}}"></i>
+                  <span class="status_text">
+                    {{ 'Succesfully completed' if status else 'Needs attention'}} 
                   </span>
-                  <span class="why_expanded">
-                    Hide Why
-                  </span> 
-                </button>
+              </a>
+            </div>
 
-              {% endif %}
+            <p class="card-text">
+              {{ answer.actions[action]['plan'] | nl2br }}
+            </p>
 
-              {% if answer.actions[action]['how'] %}
+            {% if answer['has_why'] %}
+              <a href="#"
+                class="card-link show-link"
+                data-target="#outputModal" 
+                data-toggle="modal"
+                data-type="why"
+                data-action="{{action}}">
+                  Show Me Why
+              </a>
+            {% endif %}
 
-                <button 
-                  class="show-how btn btn-primary btn-xs"
-                  data-toggle="collapse" 
-                  data-parent="#accordion" 
-                  href="#collapse_how{{collapse_label}}" 
-                  aria-expanded="false" 
-                  aria-controls="collapse_how{{collapse_label}}">
-                  <span class="how_collapsed">
-                    Show Me How
-                  </span>
-                  <span class="how_expanded">
-                    Hide How
-                  </span> 
-                </button>
+            {% if answer.actions[action]['how'] %}
+              <a href="#"
+                class="card-link show-link"
+                data-target="#outputModal" 
+                data-toggle="modal"
+                data-type="how"
+                data-action="{{action}}">
+                  Show Me How
+              </a>
+            {% endif %}
 
-              {% endif %}
-
-              {% if answer.actions[action]['video'] %}
-                <button 
-                  class="show-how btn btn-primary btn-xs"
-                  data-toggle="collapse" 
-                  data-parent="#accordion" 
-                  href="#collapse_video{{collapse_label}}" 
-                  aria-expanded="false" 
-                  aria-controls="collapse_video{{collapse_label}}">
-                  <i class="glyphicon glyphicon-facetime-video"></i>
-                </button>
-              {% endif %}
-
-            </span>
+            {% if answer.actions[action]['video'] %}
+              <a href="#"
+                class="card-link show-link"
+                data-target="#videoModal" 
+                data-toggle="modal"
+                data-type="video"
+                data-action="{{ answer.actions[action]['video'] }}">
+                  Show Me A Video
+              </a>
+            {% endif %}
 
             <div>
               {% if current_user.is_admin and current_user.admin_controls_on %}
@@ -148,6 +107,45 @@
       {% endfor%}
     {% endif %}
   {% endfor %}
+
+<div id="outputModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+              Show me <span class="action_title">action</span>?
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <div class="show_spinner fa-3x text-center">
+            <i class="fas fa-spinner fa-pulse"></i> 
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+        </div>
+    </div>
+  </div>
+</div>
+
+<div id="videoModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+              Show me a video
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <iframe width="100%" height="350" src=""></iframe>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+        </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}

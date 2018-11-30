@@ -4,67 +4,63 @@
 <!-- Bootstrap -->
 {{super()}}
 <link href="{{url_for("static", filename="styles.css")}}" rel="stylesheet">
+<link href="{{url_for("static", filename="styles.scss")}}" rel="stylesheet">
 {%- endblock styles %}
-
-{% block title %}
-    {% if title %}
-      {{ title }} - VERA Strategic
-    {% else %}
-      Welcome to VERA Strategic
-    {% endif %}
-{% endblock %}
 
 {% block body %}
   {% block navbar %}
-    <nav class="navbar navbar-default">
-      <div class="container">
+    <nav class="navbar navbar-light bg-light navbar-expand-lg">
 
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
+          <a class="navbar-brand" href="https://verastrategic.com/">
+            <img src={{url_for("static", filename="images/vera_logo.png")}} width="131.2px" height="43.2px">
+          </a>
+
+          <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#navbar-content" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
           </button>
-          <a class="navbar-brand" href="https://verastrategic.com/">VERA Strategic</a>
-        </div>
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse" id="navbar-content">
 
-          <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('main.index')}}">Dashboard</a></li>
-          </ul> 
-
-          <ul class="nav navbar-nav navbar-right">
-            {% if current_user.is_admin %}
-              <li>
-                <a href="#" id="toggle_admin">
-                  admin 
-                  {% if current_user.admin_controls_on %}
-                   <span class="text-success">on</span>
-                   {% else %}
-                   <span class="text-danger">off</span>
-                  {% endif %}
+          <ul class="navbar-nav ml-auto">
+              
+            <li class="nav-item dropdown" aria-labelledby="navbarDropdown">
+              {% if current_user.is_anonymous %}
+                <a class="dropdown-item" href="{{ url_for('user.login') }}">Login</a>
+              {% else %}
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                 <strong> {{current_user.username}} </strong>
                 </a>
-              </li>
 
-            {% endif %}
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
-            {% if current_user.is_anonymous %}
-                <li><a href="{{ url_for('user.login')}}">Login</a></li>          
-            {% else %}
-              <li><a href="">Profile</a></li>
-              <li><a href="{{ url_for('user.logout') }}">Logout</a></li>
-            {% endif %}
+                  {% if current_user.is_admin %}
+                    <a class="dropdown-item" href="#" id="toggle_admin">
+                      admin 
+                      {% if current_user.admin_controls_on %}
+                       <span class="text-success">on</span>
+                       {% else %}
+                       <span class="text-danger">off</span>
+                      {% endif %}
+                    </a>
+                  {% endif %}
+
+                  <a class="dropdown-item" href="">Profile</a>
+                  <a class="dropdown-item" href="{{ url_for('main.index')}}">Dashboard</a><a class="dropdown-item" href="{{ url_for('user.logout') }}">Logout</a>
+
+                </div>
+              {% endif %}
+            </li>
           </ul>
-
         </div>
 
-      </div>
     </nav>
+
   {% endblock %}
 
     <div id="main-div" class="container">
+    {% block breadcrumb %}
+    {% endblock%}
+
     {# One-time system messages called Flash messages #}
     {% block flash_messages %}
         {%- with messages = get_flashed_messages(with_categories=true) -%}
@@ -97,5 +93,6 @@
 
   {% block extra_js %}
       <script type="text/javascript" src={{url_for("static", filename="js/framework.js")}}></script>
+      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
   {% endblock %}
 {% endblock %}
