@@ -35,15 +35,15 @@
 {% endblock%}
 
 {% block content %}
-  <div class="border-top pt-4 pb-2"> 
-    <span class="text-muted">
+  <div class="d-flex border-top pt-4 pb-2"> 
+    <div class="flex-grow-1 w-50 text-muted">
       <strong>Here is what you can do ...</strong>
+    </div>
 
-      <span class="text-dark float-right">
+      <div class="text-dark flex-grow-1 w-50 text-right">
         Overall {{module.capitalize()}} Score 
         <span class="grade-badge badge score-{{grade}}">{{score}}</span>
-      </span>
-    </span>
+      </div>
   </div> 
 
   {% for answer in data %}
