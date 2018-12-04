@@ -28,21 +28,23 @@
         <a class="" href="{{ url_for('main.index')}}">DASHBOARD</a> 
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        REPORT 
+        {{module.upper()}} REPORT 
       </li>
     </ol>
   </nav>
 {% endblock%}
 
 {% block content %}
-  <h6 class="border-top pt-4 pb-2"> 
-    Here is what you can do ...
+  <div class="border-top pt-4 pb-2"> 
+    <span class="text-muted">
+      <strong>Here is what you can do ...</strong>
 
-    <span class="float-right">
-      Overall {{module.capitalize()}} Score 
-      <span class="grade-badge badge score-{{grade}}">{{score}}</span>
+      <span class="text-dark float-right">
+        Overall {{module.capitalize()}} Score 
+        <span class="grade-badge badge score-{{grade}}">{{score}}</span>
+      </span>
     </span>
-  </h6> 
+  </div> 
 
   {% for answer in data %}
     {% if answer.actions %}

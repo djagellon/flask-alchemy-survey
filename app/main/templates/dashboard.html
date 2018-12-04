@@ -19,12 +19,12 @@
 {% set prev_completed = (prev and prev.completed) %}
 
     {% if data.completed %}
-    <li class="list-group-item my-1 p-1">
+    <li class="list-group-item my-1 p-2 completed">
         <div class="d-flex">
-            <i class="align-self-center m-3 fas fa-check text-success"></i> 
+            <i class="align-self-center m-2 fas fa-check text-success"></i> 
 
             <div class="flex-grow-1 w-100">
-                <div class="font-weight-bold">
+                <div>
                 {{ module.capitalize() }} 
                 </div>
                 <small>
@@ -45,12 +45,12 @@
     </li>
 
     {% elif prev_completed or module == 'asset' %}
-    <li class="list-group-item my-1 p-1">
+    <li class="list-group-item my-1 p-2 dashboard-active">
         <div class="d-flex">
-            <i class="align-self-center m-3 fas fa-check text-muted"></i> 
+            <i class="align-self-center m-2 fas fa-check"></i> 
 
             <div class="flex-grow-1 w-100">
-                <div class="font-weight-bold">
+                <div>
                     {{ module.capitalize() }} 
                 </div>
 
@@ -65,18 +65,18 @@
 
             <div class="dashboard-action flex-shrink-1 text-center align-self-center">
                 {% if not data.completed and data.started %}
-                    <a type="button" class="btn btn-primary btn-sm" href="{{ url_for('survey.collect', module=module)}}">Continue</a>
+                    <a type="button" class="btn btn-success btn-sm text-dark" href="{{ url_for('survey.collect', module=module)}}">Continue</a>
                 {% else %}
-                    <a type="button" class="btn btn-primary btn-sm" href="{{ url_for('survey.start', module=module)}}">Start</a>
+                    <a type="button" class="btn btn-primary btn-sm rounded" href="{{ url_for('survey.start', module=module)}}">Start Survey</a>
                 {% endif %}
             </div>
         </div>
     </li>
 
     {% else %}
-    <li class="list-group-item bg-light my-1 p-1">
+    <li class="list-group-item bg-light my-1 p-2">
         <div class="d-flex">
-            <i class="align-self-center m-3 fas fa-check text-muted"></i> 
+            <i class="align-self-center m-2 fas fa-check"></i> 
 
             <div class="flex-grow-1 w-100">
                 <div class="font-weight-bold">
@@ -94,7 +94,7 @@
 
 {% block content %}
 
-    <ul class="list-group">
+    <ul class="list-group dashboard-list">
         {% for module in data %}
             {{ dashboard_data(module, loop.previtem) }}
         {% endfor %}

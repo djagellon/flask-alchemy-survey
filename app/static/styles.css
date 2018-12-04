@@ -24,10 +24,36 @@ ul {
   color: #ffffff;
 }
 
-
 /* Dashboard */
+
+.dashboard-active {
+  box-shadow: 0 1px 2px 0 rgba(22, 38, 59, 0.4);
+  background-color: #ffffff;
+}
+
+.dashboard-list li:not(.completed) {
+  border: none;
+}
+
+.dashboard-list li:not(.completed) .fa-check {
+  color: transparent;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #6c757d;
+}
+
+.dashboard-list div {
+  font-weight: 500; 
+  font-size: .95rem;
+  color: #16263b;
+}
+
 .dashboard-action {
   width: 8rem;
+}
+
+.dashboard-action a {
+  font-weight: 600;
+  -webkit-appearance: initial;
 }
 
 .score-A {
@@ -53,7 +79,7 @@ ul {
 /* Report */
 
 .show-link {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   color: #0073a3;
 }
