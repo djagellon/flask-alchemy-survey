@@ -151,6 +151,12 @@ def get_answer_for_module(module):
                 outdata['actions'] = None
                 continue
 
+            # Don't return output data until requested
+            if outdata.get('short') or outdata.get('long'):
+                outdata['has_why'] = True
+                del outdata['short']
+                del outdata['long']
+
             # check if answers have been completed
             complete = check_action_completeness(module, action)
             outdata['actions'][action]['complete'] = complete
@@ -163,8 +169,11 @@ def get_answer_for_module(module):
         for label, checked in answer_list:
             outdata = get_outputs_for_answer(label, checked)
 
-            if int(checked) and outdata and outdata.get('score'):
-                score = score + float(outdata['score'])
+            if outdata:
+                outdata['answer_label'] = label
+
+                if int(checked) and outdata.get('score'):
+                    score = score + float(outdata['score'])
 
             answers.append(outdata)
 
@@ -226,20 +235,24 @@ def toggle_task(module, answer):
 
     return jsonify({'success': True, 'complete': action.completed})
 
-@bp.route('/reports/<type>/<module>/<label>', methods=['GET'])
+@bp.route('/reports/<output_type>/<answer_label>/<action_label>', methods=['GET'])
 @token_auth.login_required
-def get_output(type, module, label):
+def get_output(output_type, answer_label, action_label):
 
-    label = get_answer_label(label)
-
-    with open('surveys/%s_output.json' % module) as f:
+    with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
-    try:
-        output = outputs[label][type]
-    except KeyError:
-        print "NO OUTPUT FOUND FOR %s" % label
-        output = 'No further information available'
+    answers = outputs.get(answer_label)
+    
+    if output_type == 'why':
+         output = answers.get('short') or ''
+         output += '\n\n' + (answers.get('long') or '')
+    else:    
+        try:
+            output = outputs[answer_label]['actions'][action_label][output_type]
+        except TypeError:
+            print "NO %s OUTPUT FOUND FOR %s" % (output_type, action_label)
+            output = 'No further information available'
 
     return jsonify(output)
 
