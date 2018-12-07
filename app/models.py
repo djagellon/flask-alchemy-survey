@@ -75,6 +75,7 @@ class User(db.Model, UserMixin):
     @property
     def is_admin(self):
         return 'admin' in [role.name for role in self.roles]
+    
 
 
 class Role(db.Model):
@@ -132,6 +133,7 @@ class QuestionModel(db.Model):
     label = db.Column(db.String(55), nullable=False)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
     answer = db.Column(db.ARRAY(db.String))
+    question_type = db.Column(db.String(25))
     actions = db.relationship('ActionModel', backref='questions', lazy='dynamic')
 
     def to_dict(self):
@@ -139,6 +141,7 @@ class QuestionModel(db.Model):
                     label = self.label,
                     answer = self.answer,
                     survey_id = self.survey_id,
+                    question_type = self.question_type,
                     actions = [action.to_dict() for action in self.actions])
 
 class ActionModel(db.Model):
