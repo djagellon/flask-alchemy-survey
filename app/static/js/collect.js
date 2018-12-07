@@ -1,7 +1,6 @@
 $(function() {
     // Disables other input field until correct option is selected
     $('.other_open').each((i, el) => {
-        console.log("FOUND OTHER", this);
 
         let $input = $(el).find('input');
         let question_id = $input.attr('id').split('_')[0];
