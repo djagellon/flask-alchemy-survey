@@ -75,7 +75,6 @@ class User(db.Model, UserMixin):
     @property
     def is_admin(self):
         return 'admin' in [role.name for role in self.roles]
-    
 
 
 class Role(db.Model):
