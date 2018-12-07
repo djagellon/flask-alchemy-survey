@@ -98,9 +98,9 @@ class Survey(object):
     def get_questions(self):
         return self.questions[self.page_index]
 
-    def add_answers(self, question, answer):
+    def add_answers(self, question, answer, question_type):
 
-        data = QuestionModel(label=question, answer=answer, survey=self.survey_db)
+        data = QuestionModel(label=question, answer=answer, question_type=question_type, survey=self.survey_db)
 
         db.session.add(data)
         db.session.commit()
@@ -164,5 +164,5 @@ class Survey(object):
 
             if other_label:
                 setattr(DynamicForm, other_label, StringField(id=other_label, render_kw={'class': 'other_option'}))
-
+                
         return DynamicForm()
