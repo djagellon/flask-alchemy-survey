@@ -124,6 +124,7 @@ def get_score_grade(score):
 def get_answer_for_module(module):
 
     answers = []
+    action_labels = []
     score = 0
 
     user = get_user()
@@ -136,20 +137,48 @@ def get_answer_for_module(module):
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
-    def get_outputs_for_answer(label, checked):
+    def check_if_answered(label):
+        # Checks if given label was answered
+
+        question_label = label.split('.')[0]
+        answers = survey.questions.filter_by(label=question_label).first().answer
+        return label in answers
+
+    def get_outputs_for_answer(answer_label, checked):
         """ Returns the output and action items based on questions answerd.
         Multiselect question types can have outputs based on unchecked answers.
         """
-        outdata = outputs.get(label, None)
+        outdata = outputs.get(answer_label)
 
-        if not outdata:
+        if not outdata or not outdata.get('actions'):
             return
 
-        for action in outdata.get('actions') or []:
+        for action_label, action in outdata.get('actions').items():
+
             # No output returned if 'not' in action label and answer checked
-            if 'not' in action.split('.') and int(checked):
-                outdata['actions'] = None
+            if 'not' in action_label.split('.') and int(checked):
+                del outdata['actions'][action_label]
                 continue
+
+            # No output returned if answer not checked and 'not' not in label 
+            if not int(checked) and 'not' not in action_label.split('.'):
+                del outdata['actions'][action_label]
+                continue
+
+            # if action already exists in output don't include it again
+            if action_label in action_labels:
+                del outdata['actions'][action_label]
+                continue
+
+            # Some actions are based on multiple answers
+            if action.get('with'):
+                conditions = action.get('with').split(',')
+
+                for condition in conditions:
+                    # only include action in outdata if all 'with' conditions are met 
+                    if not check_if_answered(condition):
+                        del outdata['actions'][action_label]
+                        break
 
             # Don't return output data until requested
             if outdata.get('short') or outdata.get('long'):
@@ -158,8 +187,11 @@ def get_answer_for_module(module):
                 del outdata['long']
 
             # check if answers have been completed
-            complete = check_action_completeness(module, action)
-            outdata['actions'][action]['complete'] = complete
+            complete = check_action_completeness(module, answer_label, action_label)
+            action['complete'] = complete
+
+            # track included actions to prevent duplication
+            action_labels.append(action_label)
 
         return outdata
 
@@ -183,16 +215,18 @@ def get_answer_for_module(module):
     return jsonify({'answers': answers, 'score':score})
 
 
-def check_action_completeness(module, action):
+def check_action_completeness(module, answer_label, action_label):
     # Determine if action has been marked as complete by the user
-    action_split = action.split('.')
-    q_label = action_split[0]
-    q_answer = '.'.join(action_split[:-1])
+    question_label = answer_label.split('.')[0]
 
     user = get_user()
     survey = user.surveys.filter_by(module=module).first()
-    question = survey.questions.filter_by(label=q_label).first()
-    answer = question.actions.filter_by(label=action).first()
+    question = survey.questions.filter_by(label=question_label).first()
+
+    try:
+        answer = question.actions.filter_by(label=action_label).first()
+    except AttributeError:
+        return False
 
     if answer:
         return answer.completed
@@ -205,27 +239,26 @@ def get_answer_label(label):
     # we only care about the qlabel.answer
     return '.'.join(label.split('.')[:2])
 
-@bp.route('/reports/complete/<module>/<answer>', methods=['GET', 'POST'])
+@bp.route('/reports/complete/<module>/<answer_label>/<action_label>', methods=['GET', 'POST'])
 @token_auth.login_required
-def toggle_task(module, answer):
+def toggle_task(module, answer_label, action_label):
     """ 
     Toggles answers if they exists, marks them complete if it doesn't
     """
 
-    ans_split = answer.split('.')
-    q_label = ans_split[0]
+    question_label = answer_label.split('.')[0]
 
     user = get_user()
     survey = user.surveys.filter_by(module=module).first()
-    question = survey.questions.filter_by(label=q_label).first()
-    action = question.actions.filter_by(label=answer).first()
+    question = survey.questions.filter_by(label=question_label).first()
+    action = question.actions.filter_by(label=action_label).first()
 
     if action:
         action.completed = not action.completed
 
     else:
         action = ActionModel(
-            label=answer, 
+            label=action_label, 
             question_id=question.id, 
             completed=True, 
             completed_on=datetime.now())

@@ -4,26 +4,58 @@
     <h1>{% block title %}Report{% endblock %}</h1>
 {% endblock %}
 
-{% block content %}
-<h2> All Reports</h2>
-    </br/><br/>
+{% block breadcrumb %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb" style="font-size: 0.75rem; font-weight: bold;">
+      <li class="breadcrumb-item" aria-current="page">
+        <a class="" href="{{ url_for('main.index')}}">ADMIN</a> 
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        ALL USER REPORTS 
+      </li>
+    </ol>
+  </nav>
+{% endblock%}
 
-        {% for d in data %}
-            <div class="panel panel-default">
-                <div class="panel-heading">ID: {{ d['id']}} Module: {{d['module']}}</div>
-                <div class="table-responsive">
-                <table class="table table-striped">
-                    <tr><th>Question</th><th>Answer</th></tr>
-                    {% for q in d['questions'] %}
-                        <tr>
-                            <td>{{ q['label'] }}</td>
-                            <td>{{ q['answer'] }}</td>
-                        </tr>
-                    {% endfor %}
-                </table>
-                </div>
-            </div>
-        {% endfor %}
+{% block content %}
+  <div class="d-flex border-top pt-4 pb-2"> 
+    <div class="flex-grow-1 w-50 text-muted">
+      <strong> {{data | length}} Total Surveys</strong>
+    </div>
+  </div> 
+
+
+{% for survey in data %}
+<div class="card my-3" data-answer="{{action}}">
+    <div class="card-header bg-primary text-white">
+        {% if survey['completed_on'] %}
+            completed: {{survey['completed_on'] | strftime }} |
+        {% endif %}
+
+        started: {{survey['started_on'] | strftime }} | 
+        module: {{survey['module']}} | 
+        survey id: {{ survey['id']}}  |
+        user id: {{survey['user']}} |
+    </div>
+
+  <div class="card-body m-0 p-1">
+    <p class="card-text">
+        <div class="table-responsive">
+        <table class="table table-striped">
+            <tr><th scope="col">Question</th><th scope="col">Answer</th></tr>
+            {% for q in survey['questions'] %}
+                <tr>
+                    <td>{{ q['label'] }}</td>
+                    <td>{{ q['answer'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </p>
+
+  </div>
+</div>
+{% endfor%}
 
     <input type="button" class="btn btn-danger" value="Clear DB" onclick="window.location.href='{{ url_for('report.delete_survey') }}'">
 {% endblock %}

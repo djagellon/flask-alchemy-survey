@@ -1,7 +1,7 @@
 $(function() {
 
-    async function toggleAction(module, action) {
-        let complete_url = `/api/reports/complete/${module}/${action}`;
+    async function toggleAction(module, answer, action) {
+        let complete_url = `/api/reports/complete/${module}/${answer}/${action}`;
         let response = await fetch(complete_url);
         let data = await response.json();
 
@@ -37,12 +37,11 @@ $(function() {
 
     $("a.mark-complete").on("click", event => {
         let $this = $(event.currentTarget);
-        let modal = $this.parents('.panel')[0];
-        let status = $this.data('status');
-        let action = $this.data('answer');
+        let answer = $this.data('answer');
+        let action = $this.data('action');
         let survey_module = getModule();
 
-        toggleAction(survey_module, action).then(res => {
+        toggleAction(survey_module, answer, action).then(res => {
             if (res.success) {
                 toggleButtonClass($this, res.complete);
             } else {
