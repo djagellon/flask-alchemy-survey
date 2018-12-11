@@ -54,7 +54,10 @@
         <div class="card my-3" data-answer="{{action}}">
           <div class="card-body">
             <div class="card-subtitle text-right">
-              <a href="#" data-status="{{ status }}" data-answer="{{ action }}" class="mark-complete text-muted btn">
+              <a href="#" 
+                  class="mark-complete text-muted btn"
+                  data-action="{{ action }}" 
+                  data-answer="{{ answer.answer_label }}">
                   <i class="{{'text-success fas fa-check-square' if status else 'far fa-square'}}"></i>
                   <span class="status_text">
                     {{ 'Succesfully completed' if status else 'Needs attention'}} 
