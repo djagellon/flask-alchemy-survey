@@ -74,11 +74,11 @@ def generate_outputs():
     howto_sheet = 'HowTo!%s' % (HOWTO_RANGE)
     howto_data = get_sheet_from_google(howto_sheet)
     howto_values = howto_data.get('values', [])
-    action_object, action_lookup = action_to_objects(howto_values)
+    action_object = action_to_objects(howto_values)
 
     for k, v in output_object.iteritems():
         weight = weight_object.get(k, None)
-        v['actions'] = action_lookup.get(k, None)
+        v['actions'] = action_object.get(k, None)
 
         if weight:
             v.update(weight)
@@ -125,30 +125,30 @@ def action_to_objects(actions):
     '''
 
     datalabel = ''
-    actions_per_datalabel = {}
     action_object = {}
 
     for action in actions:
+
         if action and action[0]:
             datalabel = action[0]
-            actions_per_datalabel[datalabel] = []
         else:
             datalabel = datalabel
 
         action_object[datalabel] = action_object.get(datalabel, {})
 
-        if len(action) < 2:
-            actions_per_datalabel[datalabel] = []
-        elif action[1]: 
-            actionlabel = action[1]
-            actions_per_datalabel[datalabel].append(actionlabel)
-            action_object[datalabel][actionlabel] = {
-                'plan': action[2],
-                'how': action[3] if len(action) > 3 else None,
-                'video': action[4] if len(action) > 4 else None
-            }
+        if len(action) > 2 and action[1]: 
+            action_label = action[1]
+            data_labels = [x.strip() for x in datalabel.split(',')]
 
-    return actions_per_datalabel, action_object
+            for label in data_labels:
+                action_object[label][action_label] = {
+                    'plan': action[2],
+                    'how': action[3] if len(action) > 3 else None,
+                    'video': action[4] if len(action) > 4 else None,
+                    'with': [s for s in data_labels if s != label] if len(data_labels) > 1 else None
+                }
+
+    return action_object
 
 
 def values_to_objects(values, header):

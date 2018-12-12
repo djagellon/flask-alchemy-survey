@@ -150,10 +150,12 @@ def get_answer_for_module(module):
         """
         outdata = outputs.get(answer_label)
 
-        if not outdata or not outdata.get('actions'):
+        if not outdata:
             return
 
-        for action_label, action in outdata.get('actions').items():
+        actions = outdata.get('action', {})
+
+        for action_label, action in actions.items():
 
             # No output returned if 'not' in action label and answer checked
             if 'not' in action_label.split('.') and int(checked):
@@ -172,7 +174,7 @@ def get_answer_for_module(module):
 
             # Some actions are based on multiple answers
             if action.get('with'):
-                conditions = action.get('with').split(',')
+                conditions = action.get('with')
 
                 for condition in conditions:
                     # only include action in outdata if all 'with' conditions are met 
