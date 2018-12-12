@@ -158,7 +158,7 @@ def get_answer_for_module(module):
         if not outdata:
             return
 
-        actions = outdata.get('actions', {})
+        actions = outdata.get('actions', {}) or {}
 
         for action_label, action in actions.items():
 
