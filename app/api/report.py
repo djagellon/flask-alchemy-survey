@@ -141,7 +141,12 @@ def get_answer_for_module(module):
         # Checks if given label was answered
 
         question_label = label.split('.')[0]
-        answers = survey.questions.filter_by(label=question_label).first().answer
+        question = survey.questions.filter_by(label=question_label).first()
+        answers = question.answer
+
+        if question.question_type == "MultiField":
+            answers = [a[0] for a in answers if int(a[1])]
+
         return label in answers
 
     def get_outputs_for_answer(answer_label, checked):
@@ -153,7 +158,7 @@ def get_answer_for_module(module):
         if not outdata:
             return
 
-        actions = outdata.get('action', {})
+        actions = outdata.get('actions', {})
 
         for action_label, action in actions.items():
 
