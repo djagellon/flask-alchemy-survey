@@ -81,9 +81,21 @@ def get_score_for_module(module):
         for label, checked in answer_list:
             outdata = outputs.get(label, None)
 
-            if int(checked) and outdata and outdata.get('score'):
-                score = score + float(outdata['score'])
+            if not outdata:
+                continue
 
+            checked = int(checked)
+            output_score = outdata.get('score')
+
+            # Leading '~' will increment score for unchecked answers 
+            if output_score and output_score.startswith('~'):
+                if not checked:
+                    score = score + float(output_score[1:])
+
+            elif output_score and checked:
+                score = score + float(output_score)
+
+            # increment completed action scores
             if outdata and outdata.get('actions'):
                 for action_label, action in outdata['actions'].items():
 
