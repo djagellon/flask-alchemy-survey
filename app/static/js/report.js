@@ -9,7 +9,15 @@ $(function() {
     }
 
     async function getOutput(module, type, label, action) {
-        let output_url = `/api/reports/${type}/${label}/${action}`;
+        let output_url = `/api/reports/output/${type}/${label}/${action}`;
+        let response = await fetch(output_url);
+        let data = await response.json();
+
+        return data;
+    }
+
+    async function getScore(module) {
+        let output_url = `/api/reports/score/${module} `;
         let response = await fetch(output_url);
         let data = await response.json();
 
@@ -35,6 +43,29 @@ $(function() {
         }
     }
 
+    function updateScore(survey_module) {
+        let $score = $('.grade-badge');
+
+        getScore(survey_module).then(res => {
+
+            $score.removeClass(function(i, className) {
+                return (className.match(/(^|\s)score-\S+/g) || []).join(' ')
+            });
+
+            $score.addClass('score-' + res.grade)
+
+            $score.prop('Counter', $score.text()).animate({
+                Counter: res.score
+            }, {
+                duration: 500,
+                easing: 'swing',
+                step: function (now) {
+                    $score.text(now.toFixed(1));
+                }
+            });
+        });
+    }
+
     $("a.mark-complete").on("click", event => {
         let $this = $(event.currentTarget);
         let answer = $this.data('answer');
@@ -44,6 +75,7 @@ $(function() {
         toggleAction(survey_module, answer, action).then(res => {
             if (res.success) {
                 toggleButtonClass($this, res.complete);
+                updateScore(survey_module);
             } else {
                 throw res.error;
             }

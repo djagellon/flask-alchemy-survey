@@ -7,11 +7,14 @@
     <span class="badge badge-info">{{action}}</span>
 
     {% if answer.weight %}
-      <span class="badge badge-info">weight:{{answer.weight}}</span>
-      <span class="badge badge-info">score:{{answer.score}}</span>
+      <span class="badge badge-info">weight: {{answer.weight}}</span>
     {% endif %}
+    
+    <span class="badge badge-info">answer score: {{answer.score}}</span>
+    <span class="badge badge-info">action score: {{answer.actions[action].score}}</span>
 
     {% if answer.notes %}
+      <br/>
       <span><em>{{answer.notes}}</em></span>
     {% endif %}
   </span>
