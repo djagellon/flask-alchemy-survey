@@ -67,6 +67,7 @@ def get_score_for_module(module):
     user = get_user()
 
     survey = user.surveys.filter_by(module=module).first()
+    completed = get_completed_actions(module)
 
     if not survey:
         return
@@ -82,6 +83,13 @@ def get_score_for_module(module):
 
             if int(checked) and outdata and outdata.get('score'):
                 score = score + float(outdata['score'])
+
+            if outdata and outdata.get('actions'):
+                for action_label, action in outdata['actions'].items():
+
+                    if action_label in completed:
+                        completed.pop(completed.index(action_label))
+                        score = score + float(action.get('score', 0))
 
     grade = get_score_grade(score)
 
@@ -119,7 +127,7 @@ def get_score_grade(score):
     else:
         return 'A'
 
-@bp.route('/reports/<module>/', methods=['GET'])
+@bp.route('/reports/answers/<module>/', methods=['GET'])
 @token_auth.login_required
 def get_answer_for_module(module):
 
@@ -130,6 +138,8 @@ def get_answer_for_module(module):
     user = get_user()
 
     survey = user.surveys.filter_by(module=module).first()
+
+    completed_actions = get_completed_actions(module)
 
     if not survey:
         return
@@ -158,6 +168,7 @@ def get_answer_for_module(module):
         if not outdata:
             return
 
+        outdata['answer_label'] = label
         actions = outdata.get('actions', {}) or {}
 
         for action_label, action in actions.items():
@@ -194,8 +205,7 @@ def get_answer_for_module(module):
                 del outdata['long']
 
             # check if answers have been completed
-            complete = check_action_completeness(module, answer_label, action_label)
-            action['complete'] = complete
+            action['complete'] = action_label in completed_actions
 
             # track included actions to prevent duplication
             action_labels.append(action_label)
@@ -208,18 +218,27 @@ def get_answer_for_module(module):
         for label, checked in answer_list:
             outdata = get_outputs_for_answer(label, checked)
 
-            if outdata:
-                outdata['answer_label'] = label
-
-                if int(checked) and outdata.get('score'):
-                    score = score + float(outdata['score'])
-
             answers.append(outdata)
 
     #sort data by weight
-    answers.sort(key=lambda x: int(x.get('weight', 0) if x and x.get('weight') else 0), reverse=True)
+    answers.sort(key=lambda x: float(x.get('weight', 0) if x and x.get('weight') else 0), reverse=True)
 
-    return jsonify({'answers': answers, 'score':score})
+    return jsonify({'answers': answers})
+
+
+def get_completed_actions(module):
+    """ Returns list of completed actions for given module
+    """
+
+    completed = []
+    user = get_user()
+    survey = user.surveys.filter_by(module=module).first()
+
+    for question in survey.questions.all():
+        actions = question.actions.all()
+        completed += [action.label for action in actions if action.completed]
+
+    return completed
 
 
 def check_action_completeness(module, answer_label, action_label):
@@ -275,7 +294,7 @@ def toggle_task(module, answer_label, action_label):
 
     return jsonify({'success': True, 'complete': action.completed})
 
-@bp.route('/reports/<output_type>/<answer_label>/<action_label>', methods=['GET'])
+@bp.route('/reports/output/<output_type>/<answer_label>/<action_label>', methods=['GET'])
 @token_auth.login_required
 def get_output(output_type, answer_label, action_label):
 

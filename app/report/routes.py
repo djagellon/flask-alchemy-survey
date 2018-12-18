@@ -34,8 +34,10 @@ def show_report(module):
 
     # retains order of objects
     obj = json.loads(data.data, object_pairs_hook=collections.OrderedDict)
-    score = obj['score']
-    grade = report.get_score_grade(score)
+    
+    score_data = report.get_score_for_module(module).json
+    score = score_data['score']
+    grade = score_data['grade']
 
     return render_template('reports.html', title="report", 
         data=obj['answers'], module=module, score=score, grade=grade)
