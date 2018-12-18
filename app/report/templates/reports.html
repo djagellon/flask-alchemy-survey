@@ -90,10 +90,12 @@
                 data-target="#outputModal" 
                 data-toggle="modal"
                 data-type="how"
-                data-answer={{answer.answer_label}}
+                data-answer="{{answer.answer_label}}"
+                data-download="{{answer.actions[action]['download'] or ''}}"
                 data-action="{{action}}">
                   Show Me How
               </a>
+
             {% endif %}
 
             {% if answer.actions[action]['video'] %}
@@ -133,8 +135,15 @@
             <i class="fas fa-spinner fa-pulse"></i> 
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="d-flex modal-footer">
+          <div class="download-link flex-grow-1 w-50">
+              <a href="#" class="card-link float-left show-link">
+                  Download File
+              </a>
+          </div>
+          <div class="text-dark flex-grow-1 w-50 text-right">
             <button type="button" class="btn btn-success" data-dismiss="modal">Ok</button>
+          </div>
         </div>
     </div>
   </div>
