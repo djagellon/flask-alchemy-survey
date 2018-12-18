@@ -21,8 +21,8 @@ SHEET_HEADERS = ["type", "label", "condition", "title", "answers", "datalabel"]
 # Columns B-E
 OUTPUT_RANGE = 'B2:E'
 OUTPUT_HEADERS = ["datalabel", "notes", "short", "long"]
-HOWTO_RANGE = 'B2:G'
-HOWTO_HEADERS = ["datalabel", "actionlabel", "score", "plan", "how", "video"]
+HOWTO_RANGE = 'B2:H'
+HOWTO_HEADERS = ["datalabel", "actionlabel", "score", "plan", "how", "video", "download"]
 
 
 # Columns C-G
@@ -146,6 +146,7 @@ def action_to_objects(actions):
                     'plan': action[3] if len(action) > 3 else None,
                     'how': action[4] if len(action) > 4 else None,
                     'video': action[5] if len(action) > 5 else None,
+                    'download': action[6] if len(action) > 6 else None,
                     'with': [s for s in data_labels if s != label] if len(data_labels) > 1 else None
                 }
 

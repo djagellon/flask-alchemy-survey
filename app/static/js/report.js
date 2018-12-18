@@ -93,11 +93,18 @@ $(function() {
         let action = $target.data('action');
         let answer = $target.data('answer');
         let type = $target.data('type');
+        let download = $target.data('download');
         let $this = $(event.currentTarget)
         let $modal_body = $this.find('.modal-body');
         let survey_module = getModule();
 
         $this.find('.action_title').text(type);
+
+        if (download) {
+            $this.find('.download-link a').show().attr('href', download);
+        } else {
+            $this.find('.download-link a').hide().attr('href', '');
+        }
 
         getOutput(survey_module, type, answer, action).then(output => {
             $modal_body.text(output);
