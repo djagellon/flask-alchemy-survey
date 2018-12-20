@@ -42,11 +42,16 @@ def get_user_reports(user_id=None):
 
     user = get_user()
     data = []
+    scores = []
+    overall_score = 0
+    overall_grade = 'B'
 
     surveys = [r.to_dict() for r in user.surveys.all()]
 
     for s in surveys:
         score_data = get_score_for_module(s['module']).json
+
+        scores.append(score_data['score'])
 
         data.append({
             'module': s.get('module'),
@@ -58,7 +63,11 @@ def get_user_reports(user_id=None):
 
     pending = [{'module': a} for a in ALL_REPORTS if a not in [s['module'] for s in surveys]]
 
-    return jsonify(data + pending)
+    if len(scores):
+        overall_score = round(sum(scores) / len(scores), 2)
+        overall_grade = get_score_grade(overall_score)
+
+    return jsonify({'data': data + pending, 'overall': {'score': overall_score, 'grade': overall_grade}})
 
 @bp.route('/reports/score/<module>/', methods=['GET'])
 @token_auth.login_required
