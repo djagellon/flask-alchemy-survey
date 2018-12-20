@@ -24,6 +24,10 @@ ul {
   color: #ffffff;
 }
 
+.overall-grade {
+  font-size: 25px;
+}
+
 /* Dashboard */
 
 .dashboard-active {

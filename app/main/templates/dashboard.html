@@ -94,6 +94,18 @@
 
 {% block content %}
 
+{% if overall.score %}
+  <div class="d-flex border-top pt-4 pb-2"> 
+    <div class="flex-grow-1 w-50 text-muted">
+    </div>
+
+      <div class="text-dark flex-grow-1 w-50 text-right">
+        Overall Program Score 
+        <span class="grade-badge overall-grade badge score-{{overall.grade}}">{{overall.score}}</span>
+      </div>
+  </div> 
+  {% endif %}
+
     <ul class="list-group dashboard-list">
         {% for module in data %}
             {{ dashboard_data(module, loop.previtem) }}

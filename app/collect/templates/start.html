@@ -7,7 +7,19 @@
 {% block questions %}
 
     <div class="card-body">
-        <h2> Welcome, please answer the following questions about...</h2>
+        <h2>
+            {% if module == 'asset' %}
+                Let’s assess the tracking and security of your assets
+            {% elif module == 'governance' %}
+                Let’s assess your organizational governance
+            {% elif module == 'risk' %}
+                Let’s assess your risk management program 
+            {% elif module == 'remediation' %}
+                Let’s assess how technology is used to secure your assets
+            {% else %}
+                Please answer the following questions regarding your organizations security profile...
+            {% endif %}
+        </h2>
         <br/>
         <br/>
         <p>Click Start to begin</p>
