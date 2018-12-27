@@ -84,6 +84,25 @@ def get_score_for_module(module):
     with open('surveys/outputs.json') as f:
         outputs = json.load(f)
 
+
+    def get_action_score(outdata):
+        outscore = 0
+
+        for action_label, action in outdata['actions'].items():
+            action_output = outputs.get(action_label)
+
+            if action_label in completed:
+                completed.pop(completed.index(action_label))
+                outscore = outscore + float(action.get('score', 0))
+
+            # Recursion alert
+            # Check for sub-actions of the current action
+            if action_output and action_output != outdata:
+                outscore = outscore + get_action_score(action_output)
+
+        return outscore
+
+
     for question in survey.questions.all():
         answer_list = get_formatted_answers(question)
 
@@ -106,11 +125,8 @@ def get_score_for_module(module):
 
             # increment completed action scores
             if outdata and outdata.get('actions'):
-                for action_label, action in outdata['actions'].items():
+                score = score + get_action_score(outdata)
 
-                    if action_label in completed:
-                        completed.pop(completed.index(action_label))
-                        score = score + float(action.get('score', 0))
 
     grade = get_score_grade(score)
 
@@ -181,15 +197,14 @@ def get_answer_for_module(module):
         return label in answers
 
     def get_outputs_for_answer(answer_label, checked):
-        """ Returns the output and action items based on questions answerd.
-        Multiselect question types can have outputs based on unchecked answers.
+        """ Returns the output and action items based on questions answered.
         """
         outdata = outputs.get(answer_label)
 
         if not outdata:
             return
 
-        outdata['answer_label'] = label
+        outdata['answer_label'] = answer_label
         actions = outdata.get('actions', {}) or {}
 
         for action_label, action in actions.items():
@@ -210,14 +225,19 @@ def get_answer_for_module(module):
                 continue
 
             # Some actions are based on multiple answers
-            if action.get('with'):
-                conditions = action.get('with')
+            conditions = action.get('with') or []
 
-                for condition in conditions:
-                    # only include action in outdata if all 'with' conditions are met 
-                    if not check_if_answered(condition):
-                        del outdata['actions'][action_label]
-                        break
+            # only include action in outdata if all 'with' conditions are met 
+            for condition in conditions:
+
+                # Condition is a completed action
+                if condition in completed_actions:
+                    continue
+
+                # Check survey answers
+                if not check_if_answered(condition):
+                    del outdata['actions'][action_label]
+                    break
 
             # Don't return output data until requested
             if outdata.get('short') or outdata.get('long'):
@@ -239,6 +259,14 @@ def get_answer_for_module(module):
         for label, checked in answer_list:
             outdata = get_outputs_for_answer(label, checked)
 
+            answers.append(outdata)
+
+    # Completed actions can have subsequesnt actions to display
+    for completed in completed_actions:
+
+        outdata = get_outputs_for_answer(completed, 1)
+
+        if outdata:
             answers.append(outdata)
 
     #sort data by weight

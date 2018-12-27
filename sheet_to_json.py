@@ -76,12 +76,20 @@ def generate_outputs():
     howto_values = howto_data.get('values', [])
     action_object = action_to_objects(howto_values)
 
-    for k, v in output_object.iteritems():
-        weight = weight_object.get(k, None)
-        v['actions'] = action_object.get(k, None)
+    for key in output_object.keys():
+        output_data = output_object[key]
 
-        if weight:
-            v.update(weight)
+        for label in key.split(','):
+            label = label.strip()
+
+            if not output_object.get(label):
+                output_object[label] = output_data
+
+            weight = weight_object.get(label, None)
+            output_data['actions'] = action_object.get(label, None)
+
+            if weight:
+                output_data.update(weight)
 
     output_file = open("surveys/outputs.json", "w")
     output_file.write(json.dumps(output_object, indent=2, sort_keys=True))
@@ -141,13 +149,16 @@ def action_to_objects(actions):
             data_labels = [x.strip() for x in datalabel.split(',')]
 
             for label in data_labels:
+                if action_object.get(label) is None:
+                    action_object[label] = {}
+
                 action_object[label][action_label] = {
                     'score': action[2] or 0,
                     'plan': action[3] if len(action) > 3 else None,
                     'how': action[4] if len(action) > 4 else None,
                     'video': action[5] if len(action) > 5 else None,
                     'download': action[6] if len(action) > 6 else None,
-                    'with': [s for s in data_labels if s != label] if len(data_labels) > 1 else None
+                    'with': data_labels if len(data_labels) > 1 else None
                 }
 
     return action_object
