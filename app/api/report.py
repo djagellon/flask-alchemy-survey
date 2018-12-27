@@ -89,14 +89,16 @@ def get_score_for_module(module):
         outscore = 0
 
         for action_label, action in outdata['actions'].items():
+            action_output = outputs.get(action_label)
+
             if action_label in completed:
                 completed.pop(completed.index(action_label))
                 outscore = outscore + float(action.get('score', 0))
 
             # Recursion alert
             # Check for sub-actions of the current action
-            if outputs.get(action_label):
-                outscore = outscore + get_action_score(outputs.get(action_label))
+            if action_output and action_output != outdata:
+                outscore = outscore + get_action_score(action_output)
 
         return outscore
 
