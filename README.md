@@ -97,35 +97,33 @@ The `survey_name.json` must be formatted in the following manner:
 
 ### Survey Attributes
 
-`label` - The label of the question
+#### Questions
+```
+label: The label of the question
 
-`title` - The text shown to the survey taker
+title: The text shown to the survey taker
 
-`condition` - The answer label that must exist in the database in order for the question to be displayed. ie. The survey taker must select this answer from a previous question to see this question.
+condition: The answer label that must exist in the database in order for the question to be displayed. ie. The survey taker must select this answer from a previous question to see this question.
 
-`type` - The question type. This can be one of:
+type: The question type. This can be one of:
+    radio: Single select option
+    multi: Multiple choice checkboxes
+    select: Drop-down selection
+    integer: Single row box with input validation
+    string: Single row text box
+    textarea: Multi-row text box
 
-    `radio` - Single select option
+answers: List of possible answers to the question. Answers have the following attributes
+```
 
-    `multi` - Multiple choice checkboxes
+#### Answers
+```
+label: Label of the answer. Must be in dot format: `questionlabel.answerlabel`. Optional, if '.other', is present as part of the label, a single row text box is added that accepts a string value.
 
-    `select` - Drop-down selection
+text: The text shown to the survey taker
 
-    `integer` - Single row box with input validation
-
-    `string` - Single row text box
-
-    `textarea` - Multi-row text box
-
-
-`answers` - List of possible answers to the question. Answers have the following attributes
-
-    `label` - Label of the answer. Must be in dot format: `questionlabel.answerlabel`. Optional, if '.other', is present as part of the label, a single row text box is added that accepts a string value.
-
-    `text` - The text shown to the survey taker
-
-    `other` (optional) - Text shown next to string input field.
-
+other: Text shown next to string input field. Must include `.other` as part of the answer label
+```
 
 ## Reporting
 
