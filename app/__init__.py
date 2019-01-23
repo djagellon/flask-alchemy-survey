@@ -46,7 +46,7 @@ def create_app():
         if not os.path.exists('logs'):
             os.mkdir('logs')
 
-        file_handler = RotatingFileHandler('logs/vera.log', maxBytes=10240, backupCount=10)
+        file_handler = RotatingFileHandler('logs/application.log', maxBytes=10240, backupCount=10)
 
         file_handler.setFormatter(logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
@@ -55,7 +55,7 @@ def create_app():
         app.logger.addHandler(file_handler)
 
         app.logger.setLevel(logging.INFO)
-        app.logger.info('Vera startup')
+        app.logger.info('Application startup')
         
         if app.config['MAIL_SERVER']:
             auth = None
@@ -70,7 +70,7 @@ def create_app():
             mail_handler = SMTPHandler(
                 mailhost=(app.config['MAIL_SERVER'], app.config['INCOMING_MAIL_PORT']),
                 fromaddr=app.config['USER_EMAIL_SENDER_EMAIL'],
-                toaddrs=app.config['ADMINS'], subject='Vera Strategic Error',
+                toaddrs=app.config['ADMINS'], subject='%s Error' % app.config['USER_APP_NAME'],
                 credentials=auth, secure=secure)
 
             mail_handler.setLevel(logging.ERROR)
