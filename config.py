@@ -9,15 +9,15 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Flask-User settings
-    USER_APP_NAME = "Vera Strategic"      # Shown in and email templates and page footers
+    USER_APP_NAME = "Flask Survey"      # Shown in and email templates and page footers
     USER_ENABLE_EMAIL = True      # Disable email authentication
     USER_ENABLE_CONFIRM_EMAIL = False
     USER_ALLOW_LOGIN_WITHOUT_CONFIRMED_EMAIL = True
     USER_ENABLE_USERNAME = True    # Enable username authentication
     USER_REQUIRE_RETYPE_PASSWORD = False    # Simplify register form
-    USER_EMAIL_SENDER_EMAIL = 'register@verastrategic.com'
+    USER_EMAIL_SENDER_EMAIL = os.environ['OUTGOING_EMAIL']
 
-    MAIL_SERVER = 'mail.verastrategic.com'
+    MAIL_SERVER = os.environ['MAIL_SERVER']
     MAIL_PORT = 465
     INCOMING_MAIL_PORT = 587
     MAIL_USE_SSL = True
