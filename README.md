@@ -103,7 +103,8 @@ label: The label of the question
 
 title: The text shown to the survey taker
 
-condition: The answer label that must exist in the database in order for the question to be displayed. ie. The survey taker must select this answer from a previous question to see this question.
+condition: The answer label that must exist in the database in order for the question to be displayed. 
+ie. The survey taker must select this answer from a previous question to see this question.
 
 type: The question type. This can be one of:
     radio: Single select option
@@ -118,7 +119,8 @@ answers: List of possible answers to the question. Answers have the following at
 
 #### Answers
 ```
-label: Label of the answer. Must be in dot format: `questionlabel.answerlabel`. Optional, if '.other', is present as part of the label, a single row text box is added that accepts a string value.
+label: Label of the answer. Must be in dot format: `questionlabel.answerlabel`. 
+Optional, if '.other', is present as part of the label, a single row text box is added that accepts a string value.
 
 text: The text shown to the survey taker
 
