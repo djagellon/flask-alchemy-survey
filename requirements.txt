@@ -76,5 +76,5 @@ virtualenv==16.2.0
 visitor==0.1.3
 wcwidth==0.1.7
 websocket-client==0.53.0
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 WTForms==2.2.1
