@@ -44,7 +44,7 @@ idna==2.6
 importlib==1.0.4
 ipaddress==1.0.22
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.11.3
 jmespath==0.9.3
 jsonschema==2.6.0
 Mako==1.0.7
